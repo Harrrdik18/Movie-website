@@ -11,6 +11,8 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  width: 100%;
+  height: 100%;
 }
 
 a {
@@ -25,9 +27,8 @@ a:hover {
 body {
   margin: 0;
   display: flex;
-  background-image: url("https://image.tmdb.org/t/p/original/xOMo8BRK7PfcJv9JCnx7s5hj0PX.jpg");
-  background-size: cover;
-  background-color: #1a1a1a;
+  justify-items: space-around;
+  background-color: #ffffff;
 }
 
 h1 {

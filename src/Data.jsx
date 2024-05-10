@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import InfoCard from './components/InfoCard';
 import Carousel from './components/Carousel';
+import InfoCard from './components/InfoCard';
 
-const MovieCard = () => {
-    const [data, setData] = useState([]); 
+const MovieCard = ({ setBackgroundImage }) => {
+    const [data, setData] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [selectedMovie, setSelectedMovie] = useState(null);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -19,30 +20,33 @@ const MovieCard = () => {
                 };
                 const response = await axios.get('https://api.themoviedb.org/3/trending/movie/day?language=en-US', options);
                 setData(response.data.results);
-                setLoading(false)               
-                }catch (error) {
+                setLoading(false);
+            } catch (error) {
                 console.error('Error fetching data:', error);
             }
         };
 
         fetchData();
     }, []);
+
+    const handleMovieSelect = (movie) => {
+        setSelectedMovie(movie);
+        setBackgroundImage(movie.backdrop_path)
+    };
+
     if (loading) {
         return <div>Loading...</div>;
     }
 
     return (
-        <div className='fullPage'   style={{
-
-        }}>
-        
+        <div className='fullPage'>
             <div className='Infocard'>
-                <InfoCard movies={data} />
+                {selectedMovie && <InfoCard movie={selectedMovie} />}
             </div>
-
             <div className='carousel'>
-                <Carousel movies={data} />
+                <Carousel movies={data} onMovieSelect={handleMovieSelect} />
             </div>
+            
         </div>
     );
 };
