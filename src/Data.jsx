@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import Carousel from './components/Carousel';
-import InfoCard from './components/InfoCard';
+import InfoCard from './components/InfoCard/InfoCard';
 
 const MovieCard = ({ setBackgroundImage }) => {
     const [data, setData] = useState([]);
