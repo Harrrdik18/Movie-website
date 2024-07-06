@@ -14,7 +14,8 @@ function App() {
     backgroundSize: 'cover',
     backgroundPosition: 'center',
     minHeight: '100vh',
-    position: 'relative'
+    position: 'relative',
+    overflow: 'hidden'
     }}>
       <Navbar />
       

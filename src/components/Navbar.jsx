@@ -7,7 +7,7 @@ function ColorSchemesExample() {
     <>
       <Navbar bg="transparent" data-bs-theme="dark">
         <Container fluid>
-          <Navbar.Brand href="#home" className="justify-content-start">NEW MOVIE</Navbar.Brand>
+          <Navbar.Brand href="#home" className="justify-content-start">CineGlance</Navbar.Brand>
           <Nav className="ms-auto">
             <Nav.Link href="#home">New Movie</Nav.Link>
             <Nav.Link href="#features">Genre</Nav.Link>

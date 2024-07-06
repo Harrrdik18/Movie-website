@@ -31,7 +31,35 @@ img{
   height: 300px;
   width: auto;
 }
-.swiper-slide img {
-  width: 200px;
-  height: 300px;
+
+/* Target the Swiper container */
+#carousel-container .swiper {
+  overflow: visible;
 }
+
+/* Ensure that the swiper slides can handle overflow */
+#carousel-container .swiper-slide {
+  overflow: visible;
+}
+
+/* Define the initial state of the card */
+.ClickableCard {
+  transition: transform 0.3s ease;
+  cursor: pointer;
+}
+
+/* Define the hover effect */
+.ClickableCard:hover {
+  transform: scale(1.1);
+}
+
+/* Define the click effect */
+.ClickableCard:active {
+  transform: scale(1.1);
+}
+
+/* Define the selected state */
+.ClickableCard.selected {
+  transform: scale(1.3);
+}
+
