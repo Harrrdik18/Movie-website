@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import MovieCard from './Data';
+import MovieCard from './MovieCard';
 import './App.css';
 import Navbar from './components/Navbar';
 

@@ -63,3 +63,45 @@ img{
   transform: scale(1.3);
 }
 
+.movie-detail {
+  padding: 20px;
+}
+
+.movie-header {
+  display: flex;
+}
+
+.movie-header img {
+  max-width: 200px;
+  margin-right: 20px;
+}
+
+.movie-header-info {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.movie-info, .movie-description, .movie-cast-and-crew, .related-movies {
+  margin-top: 20px;
+}
+
+.movie-cast-and-crew ul, .related-movies-list {
+  list-style-type: none;
+  padding: 0;
+}
+
+.related-movies-list {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.related-movies-list div {
+  margin: 10px;
+  cursor: pointer;
+}
+
+.related-movies-list img {
+  max-width: 100px;
+}
+
