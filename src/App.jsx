@@ -36,7 +36,7 @@ function App() {
       <div
         className="Container"
         style={{
-          backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.341), rgba(0, 0, 0, 0.341)), url(https://image.tmdb.org/t/p/original/${backgroundImageUrl})`,
+          backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.341), rgb(0, 0, 0)), url(https://image.tmdb.org/t/p/original/iJaSpQNZ8GsqVDWfbCXmyZQXZ5l.jpg)`,
           backgroundSize: 'cover',
           backgroundPosition: 'center',
           minHeight: '100vh',

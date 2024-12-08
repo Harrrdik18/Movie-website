@@ -23,9 +23,10 @@ const navigate = useNavigate();
       <Swiper
         modules={[Pagination, Navigation]}
         className="mySwiper"
-        spaceBetween={0}
+        spaceBetween={45}
         preventClicks={true}
         navigation={true}
+        scrollbar={true}
         breakpoints={{
           320: {
             slidesPerView: 1,
@@ -47,6 +48,12 @@ const navigate = useNavigate();
           },
           1280: {
             slidesPerView: 6,
+          },
+          1600: {
+            slidesPerView: 8,
+          },
+          1920: {
+            slidesPerView: 9,
           },
         }}
       >
