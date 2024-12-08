@@ -6,7 +6,7 @@ import Navbar from 'react-bootstrap/Navbar';
 function ColorSchemesExample() {
   return (
     
-      <Navbar bg="transparent" expand="lg" data-bs-theme="dark">
+      <Navbar bg="black" expand="lg" data-bs-theme="dark">
         <Container fluid>
           <Navbar.Brand href="/" className="justify-content-start">CineGlance</Navbar.Brand>
           <Navbar.Toggle aria-controls="basic-navbar-nav" />
