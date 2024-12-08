@@ -33,7 +33,6 @@ const Movie = () => {
   return (
     <div
       style={{
-<<<<<<< HEAD
         backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.9)), url(https://image.tmdb.org/t/p/original/${bg})`,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
@@ -87,37 +86,6 @@ const Movie = () => {
               </p>
             </div>
           </div>
-=======
-        backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.341), rgb(0, 0, 0)), url(https://image.tmdb.org/t/p/original/${bg})`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        minHeight: '100vh',
-        position: 'relative',
-        overflow: 'hidden',
-      }}
-    >
-      <div className="flex mt-auto border-solid border-2 border-slate-600 bg-slate-400/50 scale-95 w-75 justify-center mx-auto">
-        <div className="flex">
-          <img
-            className="h-full w-10%"
-            src={`https://image.tmdb.org/t/p/w500${movieDetails.poster_path}`}
-            alt={movieDetails.title}
-          />
-        </div>
-        <div className="flex flex-1 flex-col justify-center">
-          <h1 className="font-serif">{movieDetails.title}</h1>
-          <p className="text-2xl mt-5">{movieDetails.overview}</p>
-          <p className="text-2xl">
-            {new Date(movieDetails.release_date).toLocaleDateString('en-US', {
-              year: 'numeric',
-              month: 'long',
-              day: 'numeric',
-            })}
-          </p>
-          <p className="text-2xl">
-            Genre: {movieDetails.genres.map((genre) => genre.name).join(', ')}
-          </p>
->>>>>>> f15dacd662f7fc6eb5a7b1a73691fb312cc5d74e
         </div>
       </div>
     </div>
