@@ -1,38 +1,66 @@
-import { BrowserRouter as Router, NavLink } from 'react-router-dom';
-import Container from 'react-bootstrap/Container';
-import Nav from 'react-bootstrap/Nav';
-import Navbar from 'react-bootstrap/Navbar';
+import React, { useState } from 'react';
+import { Link, NavLink } from 'react-router-dom';
+import './Navbar.css';
 
-function ColorSchemesExample() {
+const Navbar = ({ onSearch }) => {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const handleSearch = (e) => {
+    const query = e.target.value;
+    setSearchQuery(query);
+    onSearch(query);
+  };
+
+  const toggleMenu = () => {
+    setIsMenuOpen(!isMenuOpen);
+  };
+
   return (
-    
-      <Navbar bg="black" expand="lg" data-bs-theme="dark">
-        <Container fluid>
-          <Navbar.Brand href="/" className="justify-content-start">CineGlance</Navbar.Brand>
-          <Navbar.Toggle aria-controls="basic-navbar-nav" />
-          <Navbar.Collapse id="basic-navbar-nav">
-            <Nav className="ms-auto">
-              <Nav.Link as={NavLink} to="/" exact>
-                Home
-              </Nav.Link>
-              <Nav.Link as={NavLink} to="/genre">
-                Genre
-              </Nav.Link>
-              <Nav.Link as={NavLink} to="/country">
-                Country
-              </Nav.Link>
-              <Nav.Link as={NavLink} to="/movies">
-                Movies
-              </Nav.Link>
-              <Nav.Link as={NavLink} to="/tv-series">
-                TV Series
-              </Nav.Link>
-            </Nav>
-          </Navbar.Collapse>
-        </Container>
-      </Navbar>
-  
-  );
-}
+    <nav className="navbar">
+      <div className="navbar-brand">
+        <Link to="/" className="logo">
+          CineGlance
+        </Link>
+        <button className="menu-toggle" onClick={toggleMenu}>
+          <span className="menu-icon"></span>
+        </button>
+      </div>
 
-export default ColorSchemesExample;
+      <div className={`navbar-menu ${isMenuOpen ? 'active' : ''}`}>
+        <div className="navbar-start">
+          <NavLink to="/" className={({ isActive }) => isActive ? 'active' : ''} end>
+            Home
+          </NavLink>
+          <NavLink to="/movies" className={({ isActive }) => isActive ? 'active' : ''}>
+            Movies
+          </NavLink>
+          <NavLink to="/tv-series" className={({ isActive }) => isActive ? 'active' : ''}>
+            TV Series
+          </NavLink>
+          <NavLink to="/genre" className={({ isActive }) => isActive ? 'active' : ''}>
+            Genre
+          </NavLink>
+          <NavLink to="/country" className={({ isActive }) => isActive ? 'active' : ''}>
+            Country
+          </NavLink>
+        </div>
+
+        <div className="navbar-end">
+          <div className="search-container">
+            <input
+              type="text"
+              placeholder="Search movies..."
+              value={searchQuery}
+              onChange={handleSearch}
+              className="search-input"
+            />
+            <span className="search-icon">🔍</span>
+          </div>
+        </div>
+      </div>
+    </nav>
+  );
+};
+
+export default Navbar;
