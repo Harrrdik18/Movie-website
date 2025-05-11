@@ -136,8 +136,11 @@ function App() {
                     <div className="spinner"></div>
                     <div className="loading-text">Loading content...</div>
                     <div className="attribution">
-                      This data is provided by TMDB API. There might be loading
-                      times sometimes.
+                      This data is provided by TMDB API. The API might not be
+                      loading because you are on Jio Fiber. Indian government
+                      have banned TMDB API so some of the broadband services
+                      don't support this, although this API works on Airtel and
+                      other broadband services.
                     </div>
                   </div>
                 ) : (
