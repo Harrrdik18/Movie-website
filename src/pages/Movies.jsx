@@ -1,19 +1,21 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
-import './Movies.css';
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
+import "./Movies.css";
 
 const Movies = () => {
   const [movies, setMovies] = useState([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [sortBy, setSortBy] = useState('popularity.desc');
-  const [year, setYear] = useState('');
+  const [sortBy, setSortBy] = useState("popularity.desc");
+  const [year, setYear] = useState("");
   const navigate = useNavigate();
   const authToken = import.meta.env.VITE_AUTH;
 
-  const years = Array.from({ length: 30 }, (_, i) => (new Date().getFullYear() - i).toString());
+  const years = Array.from({ length: 30 }, (_, i) =>
+    (new Date().getFullYear() - i).toString()
+  );
 
   useEffect(() => {
     fetchMovies();
@@ -23,7 +25,9 @@ const Movies = () => {
     setLoading(true);
     try {
       const response = await axios.get(
-        `https://api.themoviedb.org/3/discover/movie?language=en-US&sort_by=${sortBy}&page=${page}${year ? `&primary_release_year=${year}` : ''}`,
+        `https://api.themoviedb.org/3/discover/movie?language=en-US&sort_by=${sortBy}&page=${page}${
+          year ? `&primary_release_year=${year}` : ""
+        }`,
         {
           headers: { Authorization: authToken },
         }
@@ -32,7 +36,7 @@ const Movies = () => {
       setTotalPages(response.data.total_pages);
       setLoading(false);
     } catch (error) {
-      console.error('Error fetching movies:', error);
+      console.error("Error fetching movies:", error);
     }
   };
 
@@ -72,7 +76,14 @@ const Movies = () => {
       </div>
 
       {loading ? (
-        <div className="loading">Loading...</div>
+        <div className="loading">
+          <div className="spinner"></div>
+          <div className="loading-text">Loading content...</div>
+          <div className="attribution">
+            This data is provided by TMDB API. There might be loading times
+            sometimes.
+          </div>
+        </div>
       ) : (
         <>
           <div className="movies-grid">
@@ -88,7 +99,7 @@ const Movies = () => {
                 />
                 <div className="movie-info">
                   <h3>{movie.title}</h3>
-                  <p>{movie.release_date?.split('-')[0]}</p>
+                  <p>{movie.release_date?.split("-")[0]}</p>
                   <div className="movie-rating">
                     <span>★</span> {movie.vote_average.toFixed(1)}
                   </div>
@@ -98,13 +109,12 @@ const Movies = () => {
           </div>
 
           <div className="pagination">
-            <button
-              onClick={() => setPage(page - 1)}
-              disabled={page === 1}
-            >
+            <button onClick={() => setPage(page - 1)} disabled={page === 1}>
               Previous
             </button>
-            <span>Page {page} of {totalPages}</span>
+            <span>
+              Page {page} of {totalPages}
+            </span>
             <button
               onClick={() => setPage(page + 1)}
               disabled={page === totalPages}
@@ -118,4 +128,4 @@ const Movies = () => {
   );
 };
 
-export default Movies; 
+export default Movies;

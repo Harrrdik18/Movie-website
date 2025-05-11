@@ -1,19 +1,21 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
-import './TVSeries.css';
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
+import "./TVSeries.css";
 
 const TVSeries = () => {
   const [shows, setShows] = useState([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [sortBy, setSortBy] = useState('popularity.desc');
-  const [year, setYear] = useState('');
+  const [sortBy, setSortBy] = useState("popularity.desc");
+  const [year, setYear] = useState("");
   const navigate = useNavigate();
   const authToken = import.meta.env.VITE_AUTH;
 
-  const years = Array.from({ length: 30 }, (_, i) => (new Date().getFullYear() - i).toString());
+  const years = Array.from({ length: 30 }, (_, i) =>
+    (new Date().getFullYear() - i).toString()
+  );
 
   useEffect(() => {
     fetchShows();
@@ -23,7 +25,9 @@ const TVSeries = () => {
     setLoading(true);
     try {
       const response = await axios.get(
-        `https://api.themoviedb.org/3/discover/tv?language=en-US&sort_by=${sortBy}&page=${page}${year ? `&first_air_date_year=${year}` : ''}`,
+        `https://api.themoviedb.org/3/discover/tv?language=en-US&sort_by=${sortBy}&page=${page}${
+          year ? `&first_air_date_year=${year}` : ""
+        }`,
         {
           headers: { Authorization: authToken },
         }
@@ -32,7 +36,7 @@ const TVSeries = () => {
       setTotalPages(response.data.total_pages);
       setLoading(false);
     } catch (error) {
-      console.error('Error fetching TV shows:', error);
+      console.error("Error fetching TV shows:", error);
     }
   };
 
@@ -71,7 +75,14 @@ const TVSeries = () => {
       </div>
 
       {loading ? (
-        <div className="loading">Loading...</div>
+        <div className="loading">
+          <div className="spinner"></div>
+          <div className="loading-text">Loading content...</div>
+          <div className="attribution">
+            This data is provided by TMDB API. There might be loading times
+            sometimes.
+          </div>
+        </div>
       ) : (
         <>
           <div className="shows-grid">
@@ -87,7 +98,7 @@ const TVSeries = () => {
                 />
                 <div className="show-info">
                   <h3>{show.name}</h3>
-                  <p>{show.first_air_date?.split('-')[0]}</p>
+                  <p>{show.first_air_date?.split("-")[0]}</p>
                   <div className="show-rating">
                     <span>★</span> {show.vote_average.toFixed(1)}
                   </div>
@@ -97,13 +108,12 @@ const TVSeries = () => {
           </div>
 
           <div className="pagination">
-            <button
-              onClick={() => setPage(page - 1)}
-              disabled={page === 1}
-            >
+            <button onClick={() => setPage(page - 1)} disabled={page === 1}>
               Previous
             </button>
-            <span>Page {page} of {totalPages}</span>
+            <span>
+              Page {page} of {totalPages}
+            </span>
             <button
               onClick={() => setPage(page + 1)}
               disabled={page === totalPages}
@@ -117,4 +127,4 @@ const TVSeries = () => {
   );
 };
 
-export default TVSeries; 
+export default TVSeries;

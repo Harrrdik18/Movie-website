@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
-import './Genre.css';
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
+import "./Genre.css";
 
 const Genre = () => {
   const [genres, setGenres] = useState([]);
@@ -15,7 +15,7 @@ const Genre = () => {
     const fetchGenres = async () => {
       try {
         const response = await axios.get(
-          'https://api.themoviedb.org/3/genre/movie/list?language=en',
+          "https://api.themoviedb.org/3/genre/movie/list?language=en",
           {
             headers: { Authorization: authToken },
           }
@@ -23,7 +23,7 @@ const Genre = () => {
         setGenres(response.data.genres);
         setLoading(false);
       } catch (error) {
-        console.error('Error fetching genres:', error);
+        console.error("Error fetching genres:", error);
       }
     };
 
@@ -43,12 +43,21 @@ const Genre = () => {
       setMovies(response.data.results);
       setLoading(false);
     } catch (error) {
-      console.error('Error fetching movies by genre:', error);
+      console.error("Error fetching movies by genre:", error);
     }
   };
 
   if (loading) {
-    return <div className="loading">Loading...</div>;
+    return (
+      <div className="loading">
+        <div className="spinner"></div>
+        <div className="loading-text">Loading content...</div>
+        <div className="attribution">
+          This data is provided by TMDB API. There might be loading times
+          sometimes.
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -59,7 +68,9 @@ const Genre = () => {
           {genres.map((genre) => (
             <button
               key={genre.id}
-              className={`genre-button ${selectedGenre === genre.id ? 'active' : ''}`}
+              className={`genre-button ${
+                selectedGenre === genre.id ? "active" : ""
+              }`}
               onClick={() => handleGenreClick(genre.id)}
             >
               {genre.name}
@@ -82,7 +93,7 @@ const Genre = () => {
                 />
                 <div className="movie-info">
                   <h3>{movie.title}</h3>
-                  <p>{movie.release_date?.split('-')[0]}</p>
+                  <p>{movie.release_date?.split("-")[0]}</p>
                 </div>
               </div>
             ))}
@@ -97,4 +108,4 @@ const Genre = () => {
   );
 };
 
-export default Genre; 
+export default Genre;
