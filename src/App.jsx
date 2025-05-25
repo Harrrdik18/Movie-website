@@ -6,7 +6,13 @@ import {
   useNavigate,
   Navigate,
 } from "react-router-dom";
-import axios from "axios";
+import {
+  getTrendingMovies,
+  getPopularMovies,
+  getTopRatedMovies,
+  getUpcomingMovies,
+  searchMovies,
+} from "./services/tmdbService";
 import Carousel from "./components/Carousel";
 import "./App.css";
 import Navbar from "./components/Navbar";
@@ -32,51 +38,31 @@ function App() {
   const [searchResults, setSearchResults] = useState([]);
   const [showSearch, setShowSearch] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem("user"));
-  const authToken = import.meta.env.VITE_AUTH;
 
   useEffect(() => {
     const fetchAllData = async () => {
       try {
         const [trending, popular, topRated, upcoming] = await Promise.all([
-          axios.get(
-            "https://api.themoviedb.org/3/trending/movie/day?language=en-US",
-            {
-              headers: { Authorization: authToken },
-            }
-          ),
-          axios.get(
-            "https://api.themoviedb.org/3/movie/popular?language=en-US",
-            {
-              headers: { Authorization: authToken },
-            }
-          ),
-          axios.get(
-            "https://api.themoviedb.org/3/movie/top_rated?language=en-US",
-            {
-              headers: { Authorization: authToken },
-            }
-          ),
-          axios.get(
-            "https://api.themoviedb.org/3/movie/upcoming?language=en-US",
-            {
-              headers: { Authorization: authToken },
-            }
-          ),
+          getTrendingMovies("day", "en-US"),
+          getPopularMovies("en-US"),
+          getTopRatedMovies("en-US"),
+          getUpcomingMovies("en-US"),
         ]);
 
-        setTrendingMovies(trending.data.results);
-        setPopularMovies(popular.data.results);
-        setTopRatedMovies(topRated.data.results);
-        setUpcomingMovies(upcoming.data.results);
-        setBackgroundImageUrl(trending.data.results[0].backdrop_path);
+        setTrendingMovies(trending.results);
+        setPopularMovies(popular.results);
+        setTopRatedMovies(topRated.results);
+        setUpcomingMovies(upcoming.results);
+        setBackgroundImageUrl(trending.results[0].backdrop_path);
         setLoading(false);
       } catch (error) {
         console.error("Error fetching data:", error);
+        setLoading(false);
       }
     };
 
     fetchAllData();
-  }, [authToken]);
+  }, []);
 
   // Update login status when localStorage changes
   useEffect(() => {
@@ -96,13 +82,8 @@ function App() {
     }
 
     try {
-      const response = await axios.get(
-        `https://api.themoviedb.org/3/search/movie?query=${query}&language=en-US`,
-        {
-          headers: { Authorization: authToken },
-        }
-      );
-      setSearchResults(response.data.results);
+      const response = await searchMovies(query, "en-US");
+      setSearchResults(response.results);
       setShowSearch(true);
     } catch (error) {
       console.error("Error searching movies:", error);

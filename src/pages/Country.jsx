@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { getMoviesByCountry } from "../services/tmdbService";
 import "./Country.css";
 
 const Country = () => {
@@ -20,22 +20,17 @@ const Country = () => {
   const [movies, setMovies] = useState([]);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-  const authToken = import.meta.env.VITE_AUTH;
 
   const handleCountryClick = async (countryCode) => {
     setSelectedCountry(countryCode);
     setLoading(true);
     try {
-      const response = await axios.get(
-        `https://api.themoviedb.org/3/discover/movie?with_origin_country=${countryCode}&language=en-US&sort_by=popularity.desc`,
-        {
-          headers: { Authorization: authToken },
-        }
-      );
-      setMovies(response.data.results);
+      const response = await getMoviesByCountry(countryCode, "en-US");
+      setMovies(response.results);
       setLoading(false);
     } catch (error) {
       console.error("Error fetching movies by country:", error);
+      setLoading(false);
     }
   };
 

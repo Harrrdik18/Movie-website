@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { discoverTVShows } from "../services/tmdbService";
 import "./TVSeries.css";
 
 const TVSeries = () => {
@@ -11,7 +11,6 @@ const TVSeries = () => {
   const [sortBy, setSortBy] = useState("popularity.desc");
   const [year, setYear] = useState("");
   const navigate = useNavigate();
-  const authToken = import.meta.env.VITE_AUTH;
 
   const years = Array.from({ length: 30 }, (_, i) =>
     (new Date().getFullYear() - i).toString()
@@ -24,19 +23,23 @@ const TVSeries = () => {
   const fetchShows = async () => {
     setLoading(true);
     try {
-      const response = await axios.get(
-        `https://api.themoviedb.org/3/discover/tv?language=en-US&sort_by=${sortBy}&page=${page}${
-          year ? `&first_air_date_year=${year}` : ""
-        }`,
-        {
-          headers: { Authorization: authToken },
-        }
-      );
-      setShows(response.data.results);
-      setTotalPages(response.data.total_pages);
+      const params = {
+        language: "en-US",
+        sort_by: sortBy,
+        page: page,
+      };
+
+      if (year) {
+        params.first_air_date_year = year;
+      }
+
+      const response = await discoverTVShows(params);
+      setShows(response.results);
+      setTotalPages(response.total_pages);
       setLoading(false);
     } catch (error) {
       console.error("Error fetching TV shows:", error);
+      setLoading(false);
     }
   };
 

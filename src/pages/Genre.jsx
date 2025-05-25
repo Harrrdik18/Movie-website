@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { getMoviesByGenre, getGenres } from "../services/tmdbService";
 import "./Genre.css";
 
 const Genre = () => {
@@ -9,41 +9,32 @@ const Genre = () => {
   const [movies, setMovies] = useState([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
-  const authToken = import.meta.env.VITE_AUTH;
 
   useEffect(() => {
     const fetchGenres = async () => {
       try {
-        const response = await axios.get(
-          "https://api.themoviedb.org/3/genre/movie/list?language=en",
-          {
-            headers: { Authorization: authToken },
-          }
-        );
-        setGenres(response.data.genres);
+        const response = await getGenres("en");
+        setGenres(response.genres);
         setLoading(false);
       } catch (error) {
         console.error("Error fetching genres:", error);
+        setLoading(false);
       }
     };
 
     fetchGenres();
-  }, [authToken]);
+  }, []);
 
   const handleGenreClick = async (genreId) => {
     setSelectedGenre(genreId);
     setLoading(true);
     try {
-      const response = await axios.get(
-        `https://api.themoviedb.org/3/discover/movie?with_genres=${genreId}&language=en-US&sort_by=popularity.desc`,
-        {
-          headers: { Authorization: authToken },
-        }
-      );
-      setMovies(response.data.results);
+      const response = await getMoviesByGenre(genreId, "en-US");
+      setMovies(response.results);
       setLoading(false);
     } catch (error) {
       console.error("Error fetching movies by genre:", error);
+      setLoading(false);
     }
   };
 

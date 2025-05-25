@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { discoverMovies } from "../services/tmdbService";
 import "./Movies.css";
 
 const Movies = () => {
@@ -11,7 +11,6 @@ const Movies = () => {
   const [sortBy, setSortBy] = useState("popularity.desc");
   const [year, setYear] = useState("");
   const navigate = useNavigate();
-  const authToken = import.meta.env.VITE_AUTH;
 
   const years = Array.from({ length: 30 }, (_, i) =>
     (new Date().getFullYear() - i).toString()
@@ -24,19 +23,23 @@ const Movies = () => {
   const fetchMovies = async () => {
     setLoading(true);
     try {
-      const response = await axios.get(
-        `https://api.themoviedb.org/3/discover/movie?language=en-US&sort_by=${sortBy}&page=${page}${
-          year ? `&primary_release_year=${year}` : ""
-        }`,
-        {
-          headers: { Authorization: authToken },
-        }
-      );
-      setMovies(response.data.results);
-      setTotalPages(response.data.total_pages);
+      const params = {
+        language: "en-US",
+        sort_by: sortBy,
+        page: page,
+      };
+
+      if (year) {
+        params.primary_release_year = year;
+      }
+
+      const response = await discoverMovies(params);
+      setMovies(response.results);
+      setTotalPages(response.total_pages);
       setLoading(false);
     } catch (error) {
       console.error("Error fetching movies:", error);
+      setLoading(false);
     }
   };
 
