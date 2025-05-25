@@ -1,6 +1,6 @@
-import axios from 'axios';
+import axios from "axios";
 
-const API_URL = 'http://localhost:5000/api/v1/users';
+const API_URL = "https://movie-website-zr27.onrender.com/api/v1/users";
 
 // Configure axios to include credentials
 axios.defaults.withCredentials = true;
@@ -10,11 +10,11 @@ export const register = async (userData) => {
   try {
     const response = await axios.post(`${API_URL}/register`, userData);
     if (response.data.success) {
-      localStorage.setItem('user', JSON.stringify(response.data.user));
+      localStorage.setItem("user", JSON.stringify(response.data.user));
     }
     return response.data;
   } catch (error) {
-    throw error.response?.data || { error: 'Something went wrong' };
+    throw error.response?.data || { error: "Something went wrong" };
   }
 };
 
@@ -23,11 +23,11 @@ export const login = async (email, password) => {
   try {
     const response = await axios.post(`${API_URL}/login`, { email, password });
     if (response.data.success) {
-      localStorage.setItem('user', JSON.stringify(response.data.user));
+      localStorage.setItem("user", JSON.stringify(response.data.user));
     }
     return response.data;
   } catch (error) {
-    throw error.response?.data || { error: 'Something went wrong' };
+    throw error.response?.data || { error: "Something went wrong" };
   }
 };
 
@@ -35,10 +35,10 @@ export const login = async (email, password) => {
 export const logout = async () => {
   try {
     const response = await axios.get(`${API_URL}/logout`);
-    localStorage.removeItem('user');
+    localStorage.removeItem("user");
     return response.data;
   } catch (error) {
-    throw error.response?.data || { error: 'Something went wrong' };
+    throw error.response?.data || { error: "Something went wrong" };
   }
 };
 
@@ -48,7 +48,7 @@ export const getUserProfile = async () => {
     const response = await axios.get(`${API_URL}/me`);
     return response.data;
   } catch (error) {
-    throw error.response?.data || { error: 'Something went wrong' };
+    throw error.response?.data || { error: "Something went wrong" };
   }
 };
 
@@ -57,21 +57,24 @@ export const updateProfile = async (userData) => {
   try {
     const response = await axios.put(`${API_URL}/me/update`, userData);
     if (response.data.success) {
-      localStorage.setItem('user', JSON.stringify(response.data.user));
+      localStorage.setItem("user", JSON.stringify(response.data.user));
     }
     return response.data;
   } catch (error) {
-    throw error.response?.data || { error: 'Something went wrong' };
+    throw error.response?.data || { error: "Something went wrong" };
   }
 };
 
 // Update password
 export const updatePassword = async (passwordData) => {
   try {
-    const response = await axios.put(`${API_URL}/password/update`, passwordData);
+    const response = await axios.put(
+      `${API_URL}/password/update`,
+      passwordData
+    );
     return response.data;
   } catch (error) {
-    throw error.response?.data || { error: 'Something went wrong' };
+    throw error.response?.data || { error: "Something went wrong" };
   }
 };
 
@@ -81,7 +84,7 @@ export const addToFavorites = async (movieData) => {
     const response = await axios.post(`${API_URL}/favorites`, movieData);
     return response.data;
   } catch (error) {
-    throw error.response?.data || { error: 'Something went wrong' };
+    throw error.response?.data || { error: "Something went wrong" };
   }
 };
 
@@ -91,7 +94,7 @@ export const removeFromFavorites = async (movieId) => {
     const response = await axios.delete(`${API_URL}/favorites/${movieId}`);
     return response.data;
   } catch (error) {
-    throw error.response?.data || { error: 'Something went wrong' };
+    throw error.response?.data || { error: "Something went wrong" };
   }
 };
 
@@ -101,7 +104,7 @@ export const addToWatchlist = async (movieData) => {
     const response = await axios.post(`${API_URL}/watchlist`, movieData);
     return response.data;
   } catch (error) {
-    throw error.response?.data || { error: 'Something went wrong' };
+    throw error.response?.data || { error: "Something went wrong" };
   }
 };
 
@@ -111,6 +114,6 @@ export const removeFromWatchlist = async (movieId) => {
     const response = await axios.delete(`${API_URL}/watchlist/${movieId}`);
     return response.data;
   } catch (error) {
-    throw error.response?.data || { error: 'Something went wrong' };
+    throw error.response?.data || { error: "Something went wrong" };
   }
 };
