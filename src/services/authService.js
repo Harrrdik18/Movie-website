@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_URL = "https://movie-website-zr27.onrender.com/api/v1/users";
+const API_URL = "https://localhost:5000/api/v1/users";
 
 // Configure axios to include credentials
 axios.defaults.withCredentials = true;
