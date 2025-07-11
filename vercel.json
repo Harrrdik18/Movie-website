@@ -1,5 +1,6 @@
 {
   "version": 2,
+  "framework": "vite",
   "builds": [
     {
       "src": "frontend/package.json",
@@ -13,15 +14,19 @@
       "use": "@vercel/node"
     }
   ],
-  "rewrites": [
+  "routes": [
     {
-      "source": "/api/v1/(.*)",
-      "destination": "/backend/server.js"
+      "src": "/api/v1/(.*)",
+      "dest": "/backend/server.js"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/frontend/dist/$1"
     }
   ],
   "headers": [
     {
-      "source": "/api/(.*)",
+      "source": "/api/v1/(.*)",
       "headers": [
         {
           "key": "Access-Control-Allow-Origin",
@@ -37,5 +42,9 @@
         }
       ]
     }
-  ]
+  ],
+  "outputDirectory": "frontend/dist",
+  "env": {
+    "NODE_ENV": "production"
+  }
 }
