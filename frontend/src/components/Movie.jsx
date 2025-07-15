@@ -4,7 +4,7 @@ import {
   getMovieDetails,
   getMovieCredits,
   getSimilarMovies,
-} from "../services/tmdbService";
+} from "../services/omdbService";
 import "./Movie.css";
 
 const Movie = () => {
@@ -20,14 +20,14 @@ const Movie = () => {
       try {
         setLoading(true);
         const [detailsRes, creditsRes, similarRes] = await Promise.all([
-          getMovieDetails(id, "en-US"),
-          getMovieCredits(id, "en-US"),
-          getSimilarMovies(id, "en-US"),
+          getMovieDetails(id),
+          getMovieCredits(id),
+          getSimilarMovies(id),
         ]);
 
         setMovieDetails(detailsRes);
-        setCast(creditsRes.cast.slice(0, 6));
-        setSimilarMovies(similarRes.results.slice(0, 6));
+        setCast(creditsRes.cast || []);
+        setSimilarMovies(similarRes.Search || []);
         setError(null);
       } catch (error) {
         console.error("Error fetching movie data:", error);
@@ -74,14 +74,14 @@ const Movie = () => {
       <div
         className="movie-hero"
         style={{
-          backgroundImage: `linear-gradient(to right, rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.4)), url(https://image.tmdb.org/t/p/original${movieDetails.backdrop_path})`,
+          backgroundImage: `linear-gradient(to right, rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.4)), url(${movieDetails.Poster})`,
         }}
       >
         <div className="movie-hero-content">
           <div className="movie-poster">
             <img
-              src={`https://image.tmdb.org/t/p/w500${movieDetails.poster_path}`}
-              alt={movieDetails.title}
+              src={movieDetails.Poster}
+              alt={movieDetails.Title}
               onError={(e) => {
                 e.target.src =
                   "https://via.placeholder.com/500x750?text=No+Poster";
@@ -89,62 +89,60 @@ const Movie = () => {
             />
           </div>
           <div className="movie-info">
-            <h1>{movieDetails.title}</h1>
-            {movieDetails.tagline && (
-              <p className="movie-tagline">{movieDetails.tagline}</p>
+            <h1>{movieDetails.Title}</h1>
+            {movieDetails.Plot && (
+              <p className="movie-tagline">{movieDetails.Plot}</p>
             )}
 
             <div className="movie-meta">
-              {movieDetails.release_date && (
-                <span className="movie-year">
-                  {movieDetails.release_date.split("-")[0]}
-                </span>
+              {movieDetails.Year && (
+                <span className="movie-year">{movieDetails.Year}</span>
               )}
               <span className="movie-runtime">
-                {formatRuntime(movieDetails.runtime)}
+                {movieDetails.Runtime || "N/A"}
               </span>
               <span className="movie-rating">
-                ★ {movieDetails.vote_average?.toFixed(1) || "N/A"}
+                ★ {movieDetails.imdbRating || "N/A"}
               </span>
             </div>
 
-            {movieDetails.genres && movieDetails.genres.length > 0 && (
+            {movieDetails.Genre && (
               <div className="movie-genres">
-                {movieDetails.genres.map((genre) => (
-                  <span key={genre.id} className="movie-genre">
-                    {genre.name}
+                {movieDetails.Genre.split(", ").map((genre, index) => (
+                  <span key={index} className="movie-genre">
+                    {genre}
                   </span>
                 ))}
               </div>
             )}
 
-            {movieDetails.overview && (
-              <p className="movie-overview">{movieDetails.overview}</p>
+            {movieDetails.Plot && (
+              <p className="movie-overview">{movieDetails.Plot}</p>
             )}
 
             <div className="movie-details-grid">
               <div className="detail-item">
-                <span className="detail-label">Status</span>
+                <span className="detail-label">Director</span>
                 <span className="detail-value">
-                  {movieDetails.status || "N/A"}
+                  {movieDetails.Director || "N/A"}
                 </span>
               </div>
               <div className="detail-item">
-                <span className="detail-label">Budget</span>
+                <span className="detail-label">Writer</span>
                 <span className="detail-value">
-                  {formatCurrency(movieDetails.budget)}
+                  {movieDetails.Writer || "N/A"}
                 </span>
               </div>
               <div className="detail-item">
-                <span className="detail-label">Revenue</span>
+                <span className="detail-label">Awards</span>
                 <span className="detail-value">
-                  {formatCurrency(movieDetails.revenue)}
+                  {movieDetails.Awards || "N/A"}
                 </span>
               </div>
               <div className="detail-item">
                 <span className="detail-label">Language</span>
                 <span className="detail-value">
-                  {movieDetails.original_language?.toUpperCase() || "N/A"}
+                  {movieDetails.Language || "N/A"}
                 </span>
               </div>
             </div>
@@ -153,22 +151,22 @@ const Movie = () => {
       </div>
 
       {/* Cast Section */}
-      {cast.length > 0 && (
+      {movieDetails.Actors && (
         <div className="movie-section">
           <h2>Cast</h2>
           <div className="cast-grid">
-            {cast.map((person) => (
-              <div key={person.id} className="cast-card">
+            {movieDetails.Actors.split(", ").map((actor, index) => (
+              <div key={index} className="cast-card">
                 <img
-                  src={`https://image.tmdb.org/t/p/w200${person.profile_path}`}
-                  alt={person.name}
+                  src="https://via.placeholder.com/200x300?text=Actor"
+                  alt={actor}
                   onError={(e) => {
                     e.target.src =
                       "https://via.placeholder.com/200x300?text=No+Image";
                   }}
                 />
-                <h3>{person.name}</h3>
-                <p>{person.character}</p>
+                <h3>{actor}</h3>
+                <p>Actor</p>
               </div>
             ))}
           </div>
@@ -181,20 +179,20 @@ const Movie = () => {
           <h2>Similar Movies</h2>
           <div className="similar-movies-grid">
             {similarMovies.map((movie) => (
-              <div key={movie.id} className="similar-movie-card">
+              <div key={movie.imdbID} className="similar-movie-card">
                 <img
-                  src={`https://image.tmdb.org/t/p/w300${movie.poster_path}`}
-                  alt={movie.title}
+                  src={movie.Poster}
+                  alt={movie.Title}
                   onError={(e) => {
                     e.target.src =
                       "https://via.placeholder.com/300x450?text=No+Poster";
                   }}
                 />
                 <div className="similar-movie-info">
-                  <h3>{movie.title}</h3>
+                  <h3>{movie.Title}</h3>
                   <div className="similar-movie-meta">
-                    <span>{movie.release_date?.split("-")[0] || "N/A"}</span>
-                    <span>★ {movie.vote_average?.toFixed(1) || "N/A"}</span>
+                    <span>{movie.Year || "N/A"}</span>
+                    <span>★ {movie.imdbRating || "N/A"}</span>
                   </div>
                 </div>
               </div>

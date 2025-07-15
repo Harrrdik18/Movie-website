@@ -70,11 +70,11 @@ app.options("*", (req, res) => {
 
 // Import routes
 const userRoutes = require("./routes/userRoutes");
-const tmdbRoutes = require("./routes/tmdbRoutes");
+const omdbRoutes = require("./routes/omdbRoutes");
 
 // Mount routes
 app.use("/api/v1/users", userRoutes);
-app.use("/api/v1/tmdb", tmdbRoutes);
+app.use("/api/v1/omdb", omdbRoutes);
 
 // Default route
 app.get("/", (req, res) => {

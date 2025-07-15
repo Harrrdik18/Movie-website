@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { getMoviesByGenre, getGenres } from "../services/tmdbService";
+import { getMoviesByGenre, getGenres } from "../services/omdbService";
 import "./Genre.css";
 
 const Genre = () => {
@@ -25,12 +25,12 @@ const Genre = () => {
     fetchGenres();
   }, []);
 
-  const handleGenreClick = async (genreId) => {
-    setSelectedGenre(genreId);
+  const handleGenreClick = async (genreName) => {
+    setSelectedGenre(genreName);
     setLoading(true);
     try {
-      const response = await getMoviesByGenre(genreId, "en-US");
-      setMovies(response.results);
+      const response = await getMoviesByGenre(genreName);
+      setMovies(response.Search || []);
       setLoading(false);
     } catch (error) {
       console.error("Error fetching movies by genre:", error);
@@ -44,8 +44,8 @@ const Genre = () => {
         <div className="spinner"></div>
         <div className="loading-text">Loading content...</div>
         <div className="attribution">
-          This data is provided by TMDB API. There might be loading times
-          sometimes.
+          This data is provided by OMDB API (Open Movie Database). Loading movie
+          information...
         </div>
       </div>
     );
@@ -60,9 +60,9 @@ const Genre = () => {
             <button
               key={genre.id}
               className={`genre-button ${
-                selectedGenre === genre.id ? "active" : ""
+                selectedGenre === genre.name ? "active" : ""
               }`}
-              onClick={() => handleGenreClick(genre.id)}
+              onClick={() => handleGenreClick(genre.name)}
             >
               {genre.name}
             </button>
@@ -74,17 +74,14 @@ const Genre = () => {
           <div className="movies-grid">
             {movies.map((movie) => (
               <div
-                key={movie.id}
+                key={movie.imdbID}
                 className="movie-card"
-                onClick={() => navigate(`/movie/${movie.id}`)}
+                onClick={() => navigate(`/movie/${movie.imdbID}`)}
               >
-                <img
-                  src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
-                  alt={movie.title}
-                />
+                <img src={movie.Poster} alt={movie.Title} />
                 <div className="movie-info">
-                  <h3>{movie.title}</h3>
-                  <p>{movie.release_date?.split("-")[0]}</p>
+                  <h3>{movie.Title}</h3>
+                  <p>{movie.Year}</p>
                 </div>
               </div>
             ))}

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { discoverTVShows } from "../services/tmdbService";
+import { discoverTVShows } from "../services/omdbService";
 import "./TVSeries.css";
 
 const TVSeries = () => {
@@ -23,19 +23,15 @@ const TVSeries = () => {
   const fetchShows = async () => {
     setLoading(true);
     try {
-      const params = {
-        language: "en-US",
-        sort_by: sortBy,
-        page: page,
-      };
+      const params = {};
 
       if (year) {
-        params.first_air_date_year = year;
+        params.year = year;
       }
 
       const response = await discoverTVShows(params);
-      setShows(response.results);
-      setTotalPages(response.total_pages);
+      setShows(response.Search || []);
+      setTotalPages(Math.ceil((response.totalResults || 0) / 10));
       setLoading(false);
     } catch (error) {
       console.error("Error fetching TV shows:", error);
@@ -82,8 +78,8 @@ const TVSeries = () => {
           <div className="spinner"></div>
           <div className="loading-text">Loading content...</div>
           <div className="attribution">
-            This data is provided by TMDB API. There might be loading times
-            sometimes.
+            This data is provided by OMDB API (Open Movie Database). Loading TV
+            show information...
           </div>
         </div>
       ) : (
@@ -91,19 +87,16 @@ const TVSeries = () => {
           <div className="shows-grid">
             {shows.map((show) => (
               <div
-                key={show.id}
+                key={show.imdbID}
                 className="show-card"
-                onClick={() => navigate(`/tv/${show.id}`)}
+                onClick={() => navigate(`/tv/${show.imdbID}`)}
               >
-                <img
-                  src={`https://image.tmdb.org/t/p/w500${show.poster_path}`}
-                  alt={show.name}
-                />
+                <img src={show.Poster} alt={show.Title} />
                 <div className="show-info">
-                  <h3>{show.name}</h3>
-                  <p>{show.first_air_date?.split("-")[0]}</p>
+                  <h3>{show.Title}</h3>
+                  <p>{show.Year}</p>
                   <div className="show-rating">
-                    <span>★</span> {show.vote_average.toFixed(1)}
+                    <span>★</span> {show.imdbRating || "N/A"}
                   </div>
                 </div>
               </div>

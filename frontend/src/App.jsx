@@ -12,7 +12,7 @@ import {
   getTopRatedMovies,
   getUpcomingMovies,
   searchMovies,
-} from "./services/tmdbService";
+} from "./services/omdbService";
 import Carousel from "./components/Carousel";
 import "./App.css";
 import Navbar from "./components/Navbar";
@@ -43,17 +43,22 @@ function App() {
     const fetchAllData = async () => {
       try {
         const [trending, popular, topRated, upcoming] = await Promise.all([
-          getTrendingMovies("day", "en-US"),
-          getPopularMovies("en-US"),
-          getTopRatedMovies("en-US"),
-          getUpcomingMovies("en-US"),
+          getTrendingMovies(),
+          getPopularMovies(),
+          getTopRatedMovies(),
+          getUpcomingMovies(),
         ]);
 
-        setTrendingMovies(trending.results);
-        setPopularMovies(popular.results);
-        setTopRatedMovies(topRated.results);
-        setUpcomingMovies(upcoming.results);
-        setBackgroundImageUrl(trending.results[0].backdrop_path);
+        // OMDB returns data in Search array format
+        setTrendingMovies(trending.Search || []);
+        setPopularMovies(popular.Search || []);
+        setTopRatedMovies(topRated.Search || []);
+        setUpcomingMovies(upcoming.Search || []);
+
+        // Set background image from first movie poster (OMDB uses Poster field)
+        if (trending.Search && trending.Search.length > 0) {
+          setBackgroundImageUrl(trending.Search[0].Poster);
+        }
         setLoading(false);
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -82,8 +87,8 @@ function App() {
     }
 
     try {
-      const response = await searchMovies(query, "en-US");
-      setSearchResults(response.results);
+      const response = await searchMovies(query);
+      setSearchResults(response.Search || []);
       setShowSearch(true);
     } catch (error) {
       console.error("Error searching movies:", error);
@@ -95,7 +100,7 @@ function App() {
       <div
         className="Container"
         style={{
-          backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.3), rgb(0, 0, 0)), url(https://image.tmdb.org/t/p/original${backgroundImageUrl})`,
+          backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.3), rgb(0, 0, 0)), url(${backgroundImageUrl})`,
           backgroundSize: "cover",
           backgroundPosition: "center",
           backgroundRepeat: "no-repeat",
@@ -117,11 +122,8 @@ function App() {
                     <div className="spinner"></div>
                     <div className="loading-text">Loading content...</div>
                     <div className="attribution">
-                      This data is provided by TMDB API. The API might not be
-                      loading because you are on Jio Fiber. Indian government
-                      have banned TMDB API so some of the broadband services
-                      don't support this, although this API works on Airtel and
-                      other broadband services.
+                      This data is provided by OMDB API (Open Movie Database).
+                      Loading movie and TV show information...
                     </div>
                   </div>
                 ) : (
@@ -131,12 +133,9 @@ function App() {
                         <h2>Search Results</h2>
                         <div className="search-grid">
                           {searchResults.map((movie) => (
-                            <div key={movie.id} className="search-item">
-                              <img
-                                src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
-                                alt={movie.title}
-                              />
-                              <h3>{movie.title}</h3>
+                            <div key={movie.imdbID} className="search-item">
+                              <img src={movie.Poster} alt={movie.Title} />
+                              <h3>{movie.Title}</h3>
                             </div>
                           ))}
                         </div>

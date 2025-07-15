@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { getMoviesByCountry } from "../services/tmdbService";
+import { getMoviesByCountry } from "../services/omdbService";
 import "./Country.css";
 
 const Country = () => {
@@ -25,8 +25,8 @@ const Country = () => {
     setSelectedCountry(countryCode);
     setLoading(true);
     try {
-      const response = await getMoviesByCountry(countryCode, "en-US");
-      setMovies(response.results);
+      const response = await getMoviesByCountry(countryCode);
+      setMovies(response.Search || []);
       setLoading(false);
     } catch (error) {
       console.error("Error fetching movies by country:", error);
@@ -58,25 +58,22 @@ const Country = () => {
             <div className="spinner"></div>
             <div className="loading-text">Loading content...</div>
             <div className="attribution">
-              This data is provided by TMDB API. There might be loading times
-              sometimes.
+              This data is provided by OMDB API (Open Movie Database). Loading
+              movie information...
             </div>
           </div>
         ) : selectedCountry ? (
           <div className="movies-grid">
             {movies.map((movie) => (
               <div
-                key={movie.id}
+                key={movie.imdbID}
                 className="movie-card"
-                onClick={() => navigate(`/movie/${movie.id}`)}
+                onClick={() => navigate(`/movie/${movie.imdbID}`)}
               >
-                <img
-                  src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
-                  alt={movie.title}
-                />
+                <img src={movie.Poster} alt={movie.Title} />
                 <div className="movie-info">
-                  <h3>{movie.title}</h3>
-                  <p>{movie.release_date?.split("-")[0]}</p>
+                  <h3>{movie.Title}</h3>
+                  <p>{movie.Year}</p>
                 </div>
               </div>
             ))}
