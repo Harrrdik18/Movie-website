@@ -156,18 +156,7 @@ const Movie = () => {
           <h2>Cast</h2>
           <div className="cast-grid">
             {movieDetails.Actors.split(", ").map((actor, index) => (
-              <div key={index} className="cast-card">
-                <img
-                  src="https://via.placeholder.com/200x300?text=Actor"
-                  alt={actor}
-                  onError={(e) => {
-                    e.target.src =
-                      "https://via.placeholder.com/200x300?text=No+Image";
-                  }}
-                />
-                <h3>{actor}</h3>
-                <p>Actor</p>
-              </div>
+              <ActorCard key={index} actorName={actor} />
             ))}
           </div>
         </div>
@@ -200,6 +189,79 @@ const Movie = () => {
           </div>
         </div>
       )}
+    </div>
+  );
+};
+
+const ActorCard = ({ actorName }) => {
+  const [imgUrl, setImgUrl] = React.useState(
+    "https://via.placeholder.com/200x300?text=Actor"
+  );
+
+  React.useEffect(() => {
+    async function fetchImage() {
+      try {
+        // Step 1: Get Wikipedia page for actor
+        const searchRes = await fetch(
+          `https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(
+            actorName
+          )}&format=json&origin=*`
+        );
+        const searchData = await searchRes.json();
+        if (
+          searchData.query &&
+          searchData.query.search &&
+          searchData.query.search.length > 0
+        ) {
+          const pageTitle = searchData.query.search[0].title;
+          // Step 2: Get Wikidata entity ID from Wikipedia page
+          const pageRes = await fetch(
+            `https://en.wikipedia.org/w/api.php?action=query&prop=pageprops&titles=${encodeURIComponent(
+              pageTitle
+            )}&format=json&origin=*`
+          );
+          const pageData = await pageRes.json();
+          const pages = pageData.query.pages;
+          const pageId = Object.keys(pages)[0];
+          const wikibaseId = pages[pageId]?.pageprops?.wikibase_item;
+          if (wikibaseId) {
+            // Step 3: Get image from Wikidata
+            const wikidataRes = await fetch(
+              `https://www.wikidata.org/w/api.php?action=wbgetclaims&entity=${wikibaseId}&property=P18&format=json&origin=*`
+            );
+            const wikidataData = await wikidataRes.json();
+            const claims = wikidataData.claims?.P18;
+            if (claims && claims.length > 0) {
+              // P18 is the image property
+              const imageName = claims[0].mainsnak.datavalue.value;
+              setImgUrl(
+                `https://commons.wikimedia.org/wiki/Special:FilePath/${encodeURIComponent(
+                  imageName
+                )}`
+              );
+              return;
+            }
+          }
+        }
+      } catch (e) {
+        // Ignore and use placeholder
+      }
+      setImgUrl("https://via.placeholder.com/200x300?text=Actor");
+    }
+    fetchImage();
+  }, [actorName]);
+
+  return (
+    <div className="cast-card">
+      <img
+        src={imgUrl}
+        alt={actorName}
+        onError={(e) => {
+          e.target.src = "https://via.placeholder.com/200x300?text=No+Image";
+        }}
+      />
+      <h3>{actorName}</h3>
+      <p>Actor</p>
     </div>
   );
 };

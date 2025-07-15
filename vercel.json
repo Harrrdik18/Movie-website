@@ -18,6 +18,10 @@
     {
       "source": "/api/v1/(.*)",
       "destination": "/backend/server.js"
+    },
+    {
+      "source": "/api/(.*)",
+      "destination": "/backend/server.js"
     }
   ],
   "headers": [
