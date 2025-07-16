@@ -1,43 +1,46 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
 import { discoverMovies } from "../services/omdbService";
+import {
+  fetchMoviesStart,
+  fetchMoviesSuccess,
+  fetchMoviesFailure,
+} from "../redux/slices/movieSlice";
 import "./Movies.css";
 
 const Movies = () => {
-  const [movies, setMovies] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [sortBy, setSortBy] = useState("popularity.desc");
   const [year, setYear] = useState("");
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const { movies, status, error } = useSelector((state) => state.movies);
 
   const years = Array.from({ length: 30 }, (_, i) =>
     (new Date().getFullYear() - i).toString()
   );
 
   useEffect(() => {
-    fetchMovies();
-  }, [page, sortBy, year]);
+    const fetchMoviesData = async () => {
+      dispatch(fetchMoviesStart());
+      try {
+        const params = {};
 
-  const fetchMovies = async () => {
-    setLoading(true);
-    try {
-      const params = {};
+        if (year) {
+          params.year = year;
+        }
 
-      if (year) {
-        params.year = year;
+        const response = await discoverMovies(params);
+        dispatch(fetchMoviesSuccess(response.Search || []));
+        setTotalPages(Math.ceil((response.totalResults || 0) / 10));
+      } catch (error) {
+        dispatch(fetchMoviesFailure(error.toString()));
       }
-
-      const response = await discoverMovies(params);
-      setMovies(response.Search || []);
-      setTotalPages(Math.ceil((response.totalResults || 0) / 10));
-      setLoading(false);
-    } catch (error) {
-      console.error("Error fetching movies:", error);
-      setLoading(false);
-    }
-  };
+    };
+    fetchMoviesData();
+  }, [page, sortBy, year, dispatch]);
 
   const handleSortChange = (e) => {
     setSortBy(e.target.value);
@@ -74,7 +77,7 @@ const Movies = () => {
         </div>
       </div>
 
-      {loading ? (
+      {status === "loading" ? (
         <div className="loading">
           <div className="spinner"></div>
           <div className="loading-text">Loading content...</div>
@@ -82,6 +85,10 @@ const Movies = () => {
             This data is provided by OMDB API (Open Movie Database). Loading
             movie information...
           </div>
+        </div>
+      ) : status === "failed" ? (
+        <div className="error">
+          <p>Error: {error}</p>
         </div>
       ) : (
         <>

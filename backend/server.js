@@ -19,6 +19,7 @@ app.use(cookieParser());
 // Enhanced CORS configuration
 const allowedOrigins = [
   "http://localhost:5173",
+  "http://localhost:5174",
   "http://127.0.0.1:5173",
   "https://movie-website-virid-three.vercel.app", // Your Vercel frontend
   process.env.FRONTEND_URL, // Environment variable for flexibility
