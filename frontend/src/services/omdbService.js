@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_BASE_URL = "http://localhost:5000/api/v1/omdb";
+const API_BASE_URL = "https://movie-website-zr27.onrender.comapi/v1/omdb";
 
 // Configure axios to include credentials
 axios.defaults.withCredentials = true;
