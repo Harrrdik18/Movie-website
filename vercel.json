@@ -1,7 +1,6 @@
 {
   "version": 2,
   "framework": "vite",
-  "framework": "vite",
   "builds": [
     {
       "src": "frontend/package.json",
