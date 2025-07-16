@@ -54,11 +54,9 @@ router.get("/details", async (req, res) => {
     } = req.query;
 
     if (!imdbId && !title) {
-      return res
-        .status(400)
-        .json({
-          error: "Either 'i' (IMDb ID) or 't' (title) parameter is required",
-        });
+      return res.status(400).json({
+        error: "Either 'i' (IMDb ID) or 't' (title) parameter is required",
+      });
     }
 
     const params = { plot };
@@ -68,6 +66,7 @@ router.get("/details", async (req, res) => {
     if (year) params.y = year;
 
     const data = await omdbRequest(params);
+    console.log("OMDB /details response:", data);
     res.json(data);
   } catch (error) {
     res.status(500).json({ error: error.message });
