@@ -111,64 +111,76 @@ function App() {
           backgroundColor: "#000",
         }}
       >
-        <Navbar onSearch={handleSearch} isLoggedIn={isLoggedIn} />
         <Routes>
           <Route
             path="/"
             element={
-              <div className="main-content">
-                {loading ? (
-                  <div className="loading">
-                    <div className="spinner"></div>
-                    <div className="loading-text">Loading content...</div>
-                    <div className="attribution">
-                      This data is provided by OMDB API (Open Movie Database).
-                      Loading movie and TV show information...
-                    </div>
-                  </div>
-                ) : (
-                  <>
-                    {showSearch ? (
-                      <div className="search-results">
-                        <h2>Search Results</h2>
-                        <div className="search-grid">
-                          {searchResults.map((movie) => (
-                            <div key={movie.imdbID} className="search-item">
-                              <img src={movie.Poster} alt={movie.Title} />
-                              <h3>{movie.Title}</h3>
-                            </div>
-                          ))}
-                        </div>
+              <>
+                <Navbar onSearch={handleSearch} isLoggedIn={isLoggedIn} />
+                <div className="main-content">
+                  {loading ? (
+                    <div className="loading">
+                      <div className="spinner"></div>
+                      <div className="loading-text">Loading content...</div>
+                      <div className="attribution">
+                        This data is provided by OMDB API (Open Movie Database).
+                        Loading movie and TV show information...
                       </div>
-                    ) : (
-                      <>
-                        <HeroSection movies={trendingMovies.slice(0, 5)} />
-                        <div className="content-wrapper">
-                          <ContentRow
-                            title="Trending Now"
-                            movies={trendingMovies}
-                          />
-                          <ContentRow
-                            title="Popular on CineGlance"
-                            movies={popularMovies}
-                          />
-                          <ContentRow
-                            title="Top Rated"
-                            movies={topRatedMovies}
-                          />
-                          <ContentRow
-                            title="Coming Soon"
-                            movies={upcomingMovies}
-                          />
+                    </div>
+                  ) : (
+                    <>
+                      {showSearch ? (
+                        <div className="search-results">
+                          <h2>Search Results</h2>
+                          <div className="search-grid">
+                            {searchResults.map((movie) => (
+                              <div key={movie.imdbID} className="search-item">
+                                <img src={movie.Poster} alt={movie.Title} />
+                                <h3>{movie.Title}</h3>
+                              </div>
+                            ))}
+                          </div>
                         </div>
-                      </>
-                    )}
-                  </>
-                )}
-              </div>
+                      ) : (
+                        <>
+                          <HeroSection movies={trendingMovies.slice(0, 5)} />
+                          <div className="content-wrapper">
+                            <ContentRow
+                              title="Trending Now"
+                              movies={trendingMovies}
+                            />
+                            <ContentRow
+                              title="Popular on CineGlance"
+                              movies={popularMovies}
+                            />
+                            <ContentRow
+                              title="Top Rated"
+                              movies={topRatedMovies}
+                            />
+                            <ContentRow
+                              title="Coming Soon"
+                              movies={upcomingMovies}
+                            />
+                          </div>
+                        </>
+                      )}
+                    </>
+                  )}
+                </div>
+              </>
             }
           />
-          <Route path="/movie/:id" element={<Movie />} />
+          <Route
+            path="/movie/:id"
+            element={
+              <>
+                <Navbar onSearch={handleSearch} isLoggedIn={isLoggedIn} />
+                <div className="main-content">
+                  <Movie />
+                </div>
+              </>
+            }
+          />
           <Route path="/genre" element={<Genre />} />
           <Route path="/country" element={<Country />} />
           <Route path="/movies" element={<Movies />} />

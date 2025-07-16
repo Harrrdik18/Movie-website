@@ -42,11 +42,14 @@
   transform: scale(1.02);
 }
 
-.movie-info {
+.movie-page .movie-info {
   padding: 1rem 0;
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
+  position: static !important;
+  opacity: 1 !important;
+  background: none !important;
 }
 
 .movie-info h1 {
@@ -280,6 +283,10 @@
   }
 }
 
+.movie-details-content {
+  max-width: 1200px !important;
+}
+
 @media (max-width: 480px) {
   .movie-hero {
     padding: 2rem 1rem;
@@ -300,4 +307,4 @@
   .movie-overview {
     font-size: 1rem;
   }
-} 
+}

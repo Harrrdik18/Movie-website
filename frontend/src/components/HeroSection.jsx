@@ -79,7 +79,13 @@ const HeroSection = ({ movies }) => {
           </button>
           <button
             className="more-info-button"
-            onClick={() => navigate(`/movie/${currentMovie.imdbID}`)}
+            onClick={() => {
+              console.log(
+                "More Info button clicked, navigating to:",
+                `/movie/${currentMovie.imdbID}`
+              );
+              navigate(`/movie/${currentMovie.imdbID}`);
+            }}
           >
             <span className="info-icon">ℹ</span>
             More Info

@@ -16,6 +16,7 @@ const Movie = () => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
+    console.log("Movie component rendered with ID:", id);
     const fetchMovieData = async () => {
       try {
         setLoading(true);
@@ -77,7 +78,7 @@ const Movie = () => {
           backgroundImage: `linear-gradient(to right, rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.4)), url(${movieDetails.Poster})`,
         }}
       >
-        <div className="movie-hero-content">
+        <div className="movie-hero-content movie-details-content">
           <div className="movie-poster">
             <img
               src={movieDetails.Poster}
@@ -90,8 +91,8 @@ const Movie = () => {
           </div>
           <div className="movie-info">
             <h1>{movieDetails.Title}</h1>
-            {movieDetails.Plot && (
-              <p className="movie-tagline">{movieDetails.Plot}</p>
+            {movieDetails.Plot && movieDetails.Plot !== "N/A" && (
+              <p className="movie-overview">{movieDetails.Plot}</p>
             )}
 
             <div className="movie-meta">
@@ -106,7 +107,7 @@ const Movie = () => {
               </span>
             </div>
 
-            {movieDetails.Genre && (
+            {movieDetails.Genre && movieDetails.Genre !== "N/A" && (
               <div className="movie-genres">
                 {movieDetails.Genre.split(", ").map((genre, index) => (
                   <span key={index} className="movie-genre">
@@ -114,10 +115,6 @@ const Movie = () => {
                   </span>
                 ))}
               </div>
-            )}
-
-            {movieDetails.Plot && (
-              <p className="movie-overview">{movieDetails.Plot}</p>
             )}
 
             <div className="movie-details-grid">
