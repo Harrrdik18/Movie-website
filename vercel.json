@@ -1,6 +1,7 @@
 {
   "version": 2,
   "framework": "vite",
+  "framework": "vite",
   "builds": [
     {
       "src": "frontend/package.json",
@@ -26,7 +27,7 @@
   ],
   "headers": [
     {
-      "source": "/api/(.*)",
+      "source": "/api/v1/(.*)",
       "headers": [
         {
           "key": "Access-Control-Allow-Origin",
@@ -42,5 +43,9 @@
         }
       ]
     }
-  ]
+  ],
+  "outputDirectory": "frontend/dist",
+  "env": {
+    "NODE_ENV": "production"
+  }
 }
