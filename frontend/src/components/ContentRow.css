@@ -16,7 +16,7 @@
 }
 
 .row-title::after {
-  content: '';
+  content: "";
   flex: 1;
   height: 1px;
   background: linear-gradient(to right, rgba(255, 255, 255, 0.2), transparent);
@@ -46,17 +46,18 @@
 .row-poster {
   flex: 0 0 auto;
   width: 220px;
-  transition: all 0.3s ease;
+  transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
   cursor: pointer;
   position: relative;
   border-radius: 8px;
   overflow: hidden;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2), 0 6px 6px rgba(0, 0, 0, 0.23);
 }
 
 .row-poster:hover {
-  transform: scale(1.05) translateY(-10px);
+  transform: scale(1.1) translateY(-15px);
   z-index: 2;
+  box-shadow: 0 19px 38px rgba(0, 0, 0, 0.3), 0 15px 12px rgba(0, 0, 0, 0.22);
 }
 
 .row-poster img {
@@ -77,10 +78,10 @@
   left: 0;
   right: 0;
   padding: 20px 15px 15px;
-  background: linear-gradient(to top, rgba(0, 0, 0, 0.95), transparent);
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.95) 20%, transparent);
   opacity: 0;
-  transition: all 0.3s ease;
-  transform: translateY(20px);
+  transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+  transform: translateY(100%);
 }
 
 .row-poster:hover .poster-info {
@@ -174,4 +175,4 @@
     height: 40px;
     font-size: 1.2rem;
   }
-} 
+}
