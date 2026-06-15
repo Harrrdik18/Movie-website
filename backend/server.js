@@ -7,10 +7,16 @@ const { connectRedis } = require("./config/redis");
 
 const connectDatabase = require("./config/database");
 
-async () => {
-  await connectDatabase();
-  await connectRedis();
-};
+(async () => {
+  try {
+    await connectDatabase();
+    // await connectRedis();
+    console.log("Database and Redis connected successfully");
+  } catch (error) {
+    console.error("Error connecting to database or Redis:", error);
+    process.exit(1);
+  }
+})();
 
 const app = express();
 
