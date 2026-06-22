@@ -2,6 +2,12 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { discoverMoviesThunk } from "../redux/slices/movieSlice";
+import {
+  selectMovies,
+  selectMoviesStatus,
+  selectMoviesError,
+  selectTotalPages,
+} from "../redux/selectors/movieSelectors";
 import "./Movies.css";
 
 const Movies = () => {
@@ -10,13 +16,14 @@ const Movies = () => {
   const [year, setYear] = useState("");
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const { movies, status, error, totalResults } = useSelector((state) => state.movies);
+  const movies = useSelector(selectMovies);
+  const status = useSelector(selectMoviesStatus);
+  const error = useSelector(selectMoviesError);
+  const totalPages = useSelector(selectTotalPages);
 
   const years = Array.from({ length: 30 }, (_, i) =>
     (new Date().getFullYear() - i).toString()
   );
-
-  const totalPages = Math.ceil(totalResults / 10) || 1;
 
   useEffect(() => {
     const params = {};

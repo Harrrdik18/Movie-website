@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
+import { selectIsAuthenticated } from "./redux/selectors/userSelectors";
 import {
   BrowserRouter,
   Routes,
@@ -30,7 +31,7 @@ import Register from "./pages/Register";
 import Profile from "./pages/Profile";
 
 function App() {
-  const isAuthenticated = useSelector((state) => state.user.isAuthenticated);
+  const isAuthenticated = useSelector(selectIsAuthenticated);
   const [backgroundImageUrl, setBackgroundImageUrl] = useState("");
   const [trendingMovies, setTrendingMovies] = useState([]);
   const [popularMovies, setPopularMovies] = useState([]);

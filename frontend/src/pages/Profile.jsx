@@ -10,12 +10,21 @@ import {
   clearSuccess,
   clearAuth,
 } from "../redux/slices/userSlice";
+import {
+  selectUser,
+  selectUserLoading,
+  selectUserError,
+  selectUserSuccess,
+} from "../redux/selectors/userSelectors";
 import "./Profile.css";
 
 const Profile = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { user, loading, error, success } = useSelector((state) => state.user);
+  const user = useSelector(selectUser);
+  const loading = useSelector(selectUserLoading);
+  const error = useSelector(selectUserError);
+  const success = useSelector(selectUserSuccess);
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");

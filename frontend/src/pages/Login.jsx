@@ -2,13 +2,16 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { loginUser, clearError } from '../redux/slices/userSlice';
+import { selectIsAuthenticated, selectUserLoading, selectUserError } from '../redux/selectors/userSelectors';
 import './Login.css';
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const dispatch = useDispatch();
-  const { isAuthenticated, loading, error } = useSelector((state) => state.user);
+  const isAuthenticated = useSelector(selectIsAuthenticated);
+  const loading = useSelector(selectUserLoading);
+  const error = useSelector(selectUserError);
   const navigate = useNavigate();
 
   useEffect(() => {
