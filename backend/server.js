@@ -28,6 +28,7 @@ app.use(
     origin: [
       "http://localhost:5173",
       "https://movie-website-virid-three.vercel.app",
+      "https://movie-website-w6jv.vercel.app",
     ],
     credentials: true,
   }),
