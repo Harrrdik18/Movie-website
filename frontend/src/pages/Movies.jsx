@@ -1,45 +1,28 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { discoverMovies } from "../services/omdbService";
-import {
-  fetchMoviesStart,
-  fetchMoviesSuccess,
-  fetchMoviesFailure,
-} from "../redux/slices/movieSlice";
+import { discoverMoviesThunk } from "../redux/slices/movieSlice";
 import "./Movies.css";
 
 const Movies = () => {
   const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
   const [sortBy, setSortBy] = useState("popularity.desc");
   const [year, setYear] = useState("");
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const { movies, status, error } = useSelector((state) => state.movies);
+  const { movies, status, error, totalResults } = useSelector((state) => state.movies);
 
   const years = Array.from({ length: 30 }, (_, i) =>
     (new Date().getFullYear() - i).toString()
   );
 
+  const totalPages = Math.ceil(totalResults / 10) || 1;
+
   useEffect(() => {
-    const fetchMoviesData = async () => {
-      dispatch(fetchMoviesStart());
-      try {
-        const params = {};
-
-        if (year) {
-          params.year = year;
-        }
-
-        const response = await discoverMovies(params);
-        dispatch(fetchMoviesSuccess(response.Search || []));
-        setTotalPages(Math.ceil((response.totalResults || 0) / 10));
-      } catch (error) {
-        dispatch(fetchMoviesFailure(error.toString()));
-      }
-    };
-    fetchMoviesData();
+    const params = {};
+    if (year) params.year = year;
+    params.page = page;
+    dispatch(discoverMoviesThunk(params));
   }, [page, sortBy, year, dispatch]);
 
   const handleSortChange = (e) => {
