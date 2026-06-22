@@ -1,10 +1,21 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { getMoviesByCountry } from "../services/omdbService";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchMoviesByCountry } from "../redux/slices/movieSlice";
+import {
+  selectCountryMovies,
+  selectCountryLoading,
+} from "../redux/selectors/movieSelectors";
 import "./Country.css";
 
 const Country = () => {
-  const [countries, setCountries] = useState([
+  const [selectedCountry, setSelectedCountry] = useState(null);
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const movies = useSelector(selectCountryMovies);
+  const loading = useSelector(selectCountryLoading);
+
+  const countries = [
     { code: "US", name: "United States" },
     { code: "GB", name: "United Kingdom" },
     { code: "IN", name: "India" },
@@ -15,23 +26,11 @@ const Country = () => {
     { code: "IT", name: "Italy" },
     { code: "ES", name: "Spain" },
     { code: "BR", name: "Brazil" },
-  ]);
-  const [selectedCountry, setSelectedCountry] = useState(null);
-  const [movies, setMovies] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
+  ];
 
-  const handleCountryClick = async (countryCode) => {
+  const handleCountryClick = (countryCode) => {
     setSelectedCountry(countryCode);
-    setLoading(true);
-    try {
-      const response = await getMoviesByCountry(countryCode);
-      setMovies(response.Search || []);
-      setLoading(false);
-    } catch (error) {
-      console.error("Error fetching movies by country:", error);
-      setLoading(false);
-    }
+    dispatch(fetchMoviesByCountry(countryCode));
   };
 
   return (

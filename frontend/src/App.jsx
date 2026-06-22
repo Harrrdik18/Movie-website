@@ -1,6 +1,20 @@
 import { useState, useEffect } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { selectIsAuthenticated } from "./redux/selectors/userSelectors";
+import {
+  selectTrending,
+  selectPopular,
+  selectTopRated,
+  selectUpcoming,
+  selectHomeLoading,
+  selectBackgroundImageUrl,
+  selectSearchResults,
+} from "./redux/selectors/movieSelectors";
+import {
+  fetchHomeData,
+  searchMoviesThunk,
+  clearSearch,
+} from "./redux/slices/movieSlice";
 import {
   BrowserRouter,
   Routes,
@@ -8,13 +22,6 @@ import {
   useNavigate,
   Navigate,
 } from "react-router-dom";
-import {
-  getTrendingMovies,
-  getPopularMovies,
-  getTopRatedMovies,
-  getUpcomingMovies,
-  searchMovies,
-} from "./services/omdbService";
 import Carousel from "./components/Carousel";
 import "./App.css";
 import Navbar from "./components/Navbar";
@@ -31,58 +38,30 @@ import Register from "./pages/Register";
 import Profile from "./pages/Profile";
 
 function App() {
+  const dispatch = useDispatch();
   const isAuthenticated = useSelector(selectIsAuthenticated);
-  const [backgroundImageUrl, setBackgroundImageUrl] = useState("");
-  const [trendingMovies, setTrendingMovies] = useState([]);
-  const [popularMovies, setPopularMovies] = useState([]);
-  const [topRatedMovies, setTopRatedMovies] = useState([]);
-  const [upcomingMovies, setUpcomingMovies] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [searchResults, setSearchResults] = useState([]);
+  const trendingMovies = useSelector(selectTrending);
+  const popularMovies = useSelector(selectPopular);
+  const topRatedMovies = useSelector(selectTopRated);
+  const upcomingMovies = useSelector(selectUpcoming);
+  const loading = useSelector(selectHomeLoading);
+  const backgroundImageUrl = useSelector(selectBackgroundImageUrl);
+  const searchResults = useSelector(selectSearchResults);
   const [showSearch, setShowSearch] = useState(false);
 
   useEffect(() => {
-    const fetchAllData = async () => {
-      try {
-        const [trending, popular, topRated, upcoming] = await Promise.all([
-          getTrendingMovies(),
-          getPopularMovies(),
-          getTopRatedMovies(),
-          getUpcomingMovies(),
-        ]);
+    dispatch(fetchHomeData());
+  }, [dispatch]);
 
-        setTrendingMovies(trending.Search || []);
-        setPopularMovies(popular.Search || []);
-        setTopRatedMovies(topRated.Search || []);
-        setUpcomingMovies(upcoming.Search || []);
-
-        if (trending.Search && trending.Search.length > 0) {
-          setBackgroundImageUrl(trending.Search[0].Poster);
-        }
-        setLoading(false);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-        setLoading(false);
-      }
-    };
-
-    fetchAllData();
-  }, []);
-
-  const handleSearch = async (query) => {
+  const handleSearch = (query) => {
     if (query.trim() === "") {
-      setSearchResults([]);
+      dispatch(clearSearch());
       setShowSearch(false);
       return;
     }
 
-    try {
-      const response = await searchMovies(query);
-      setSearchResults(response.Search || []);
-      setShowSearch(true);
-    } catch (error) {
-      console.error("Error searching movies:", error);
-    }
+    dispatch(searchMoviesThunk(query));
+    setShowSearch(true);
   };
 
   return (

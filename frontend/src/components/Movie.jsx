@@ -1,45 +1,26 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { useParams } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchMovieDetail } from "../redux/slices/movieSlice";
 import {
-  getMovieDetails,
-  getMovieCredits,
-  getSimilarMovies,
-} from "../services/omdbService";
+  selectMovieDetails,
+  selectSimilarMovies,
+  selectDetailLoading,
+  selectDetailError,
+} from "../redux/selectors/movieSelectors";
 import "./Movie.css";
 
 const Movie = () => {
   const { id } = useParams();
-  const [movieDetails, setMovieDetails] = useState(null);
-  const [cast, setCast] = useState([]);
-  const [similarMovies, setSimilarMovies] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const dispatch = useDispatch();
+  const movieDetails = useSelector(selectMovieDetails);
+  const similarMovies = useSelector(selectSimilarMovies);
+  const loading = useSelector(selectDetailLoading);
+  const error = useSelector(selectDetailError);
 
   useEffect(() => {
-    console.log("Movie component rendered with ID:", id);
-    const fetchMovieData = async () => {
-      try {
-        setLoading(true);
-        const [detailsRes, creditsRes, similarRes] = await Promise.all([
-          getMovieDetails(id),
-          getMovieCredits(id),
-          getSimilarMovies(id),
-        ]);
-
-        setMovieDetails(detailsRes);
-        setCast(creditsRes.cast || []);
-        setSimilarMovies(similarRes.Search || []);
-        setError(null);
-      } catch (error) {
-        console.error("Error fetching movie data:", error);
-        setError("Failed to load movie details. Please try again later.");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchMovieData();
-  }, [id]);
+    dispatch(fetchMovieDetail(id));
+  }, [id, dispatch]);
 
   if (loading) {
     return <div className="movie-loading">Loading movie details...</div>;

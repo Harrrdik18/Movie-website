@@ -1,43 +1,33 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { discoverTVShows } from "../services/omdbService";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchTVShows } from "../redux/slices/movieSlice";
+import {
+  selectTVShows,
+  selectTVLoading,
+  selectTVTotalPages,
+} from "../redux/selectors/movieSelectors";
 import "./TVSeries.css";
 
 const TVSeries = () => {
-  const [shows, setShows] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
   const [sortBy, setSortBy] = useState("popularity.desc");
   const [year, setYear] = useState("");
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const shows = useSelector(selectTVShows);
+  const loading = useSelector(selectTVLoading);
+  const totalPages = useSelector(selectTVTotalPages);
 
   const years = Array.from({ length: 30 }, (_, i) =>
     (new Date().getFullYear() - i).toString()
   );
 
   useEffect(() => {
-    fetchShows();
-  }, [page, sortBy, year]);
-
-  const fetchShows = async () => {
-    setLoading(true);
-    try {
-      const params = {};
-
-      if (year) {
-        params.year = year;
-      }
-
-      const response = await discoverTVShows(params);
-      setShows(response.Search || []);
-      setTotalPages(Math.ceil((response.totalResults || 0) / 10));
-      setLoading(false);
-    } catch (error) {
-      console.error("Error fetching TV shows:", error);
-      setLoading(false);
-    }
-  };
+    const params = {};
+    if (year) params.year = year;
+    dispatch(fetchTVShows(params));
+  }, [page, sortBy, year, dispatch]);
 
   const handleSortChange = (e) => {
     setSortBy(e.target.value);

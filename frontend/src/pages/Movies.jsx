@@ -3,10 +3,10 @@ import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { discoverMoviesThunk } from "../redux/slices/movieSlice";
 import {
-  selectMovies,
-  selectMoviesStatus,
-  selectMoviesError,
-  selectTotalPages,
+  selectDiscover,
+  selectDiscoverLoading,
+  selectDiscoverError,
+  selectDiscoverTotalPages,
 } from "../redux/selectors/movieSelectors";
 import "./Movies.css";
 
@@ -16,10 +16,10 @@ const Movies = () => {
   const [year, setYear] = useState("");
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const movies = useSelector(selectMovies);
-  const status = useSelector(selectMoviesStatus);
-  const error = useSelector(selectMoviesError);
-  const totalPages = useSelector(selectTotalPages);
+  const movies = useSelector(selectDiscover);
+  const discoverLoading = useSelector(selectDiscoverLoading);
+  const discoverError = useSelector(selectDiscoverError);
+  const totalPages = useSelector(selectDiscoverTotalPages);
 
   const years = Array.from({ length: 30 }, (_, i) =>
     (new Date().getFullYear() - i).toString()
@@ -67,7 +67,7 @@ const Movies = () => {
         </div>
       </div>
 
-      {status === "loading" ? (
+      {discoverLoading ? (
         <div className="loading">
           <div className="spinner"></div>
           <div className="loading-text">Loading content...</div>
@@ -76,9 +76,9 @@ const Movies = () => {
             movie information...
           </div>
         </div>
-      ) : status === "failed" ? (
+      ) : discoverError ? (
         <div className="error">
-          <p>Error: {error}</p>
+          <p>Error: {discoverError}</p>
         </div>
       ) : (
         <>
