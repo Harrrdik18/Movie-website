@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { register } from '../services/authService';
+import { useDispatch, useSelector } from 'react-redux';
+import { registerUser, clearError } from '../redux/slices/userSlice';
 import './Register.css';
 
 const Register = () => {
@@ -8,50 +9,46 @@ const Register = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [validationError, setValidationError] = useState('');
+  const dispatch = useDispatch();
+  const { isAuthenticated, loading, error } = useSelector((state) => state.user);
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Check if user is already logged in
-    const user = localStorage.getItem('user');
-    if (user) {
+    if (isAuthenticated) {
       navigate('/');
     }
-  }, [navigate]);
+  }, [isAuthenticated, navigate]);
+
+  useEffect(() => {
+    return () => {
+      dispatch(clearError());
+    };
+  }, [dispatch]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
+    setValidationError('');
 
     // Validate form
     if (password !== confirmPassword) {
-      setError('Passwords do not match');
+      setValidationError('Passwords do not match');
       return;
     }
 
     if (password.length < 6) {
-      setError('Password must be at least 6 characters');
+      setValidationError('Password must be at least 6 characters');
       return;
     }
 
-    setLoading(true);
-
-    try {
-      await register({ name, email, password });
-      navigate('/');
-    } catch (error) {
-      setError(error.error || 'Registration failed');
-    } finally {
-      setLoading(false);
-    }
+    dispatch(registerUser({ name, email, password }));
   };
 
   return (
     <div className="register-container">
       <div className="register-form-container">
         <h2>Create Account</h2>
-        {error && <div className="error-message">{error}</div>}
+        {(error || validationError) && <div className="error-message">{error || validationError}</div>}
         <form onSubmit={handleSubmit} className="register-form">
           <div className="form-group">
             <input

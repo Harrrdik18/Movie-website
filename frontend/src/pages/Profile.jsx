@@ -1,109 +1,80 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
 import {
-  getUserProfile,
-  updateProfile,
-  updatePassword,
-  logout,
-} from "../services/authService";
+  fetchUserProfile,
+  updateUserProfile,
+  updateUserPassword,
+  logoutUser,
+  clearError,
+  clearSuccess,
+  clearAuth,
+} from "../redux/slices/userSlice";
 import "./Profile.css";
 
 const Profile = () => {
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
-  const [activeTab, setActiveTab] = useState("profile");
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const { user, loading, error, success } = useSelector((state) => state.user);
 
-  // Profile form state
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
-
-  // Password form state
   const [oldPassword, setOldPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-
-  const navigate = useNavigate();
+  const [validationError, setValidationError] = useState("");
+  const [activeTab, setActiveTab] = useState("profile");
 
   useEffect(() => {
-    const fetchUserProfile = async () => {
-      try {
-        const { user } = await getUserProfile();
-        setUser(user);
-        setName(user.name);
-        setEmail(user.email);
-      } catch (error) {
-        setError("Failed to load profile. Please login again.");
+    dispatch(fetchUserProfile())
+      .unwrap()
+      .catch(() => {
         localStorage.removeItem("user");
-        setTimeout(() => {
-          navigate("/login");
-        }, 2000);
-      } finally {
-        setLoading(false);
-      }
-    };
+        dispatch(clearAuth());
+      });
+  }, [dispatch]);
 
-    fetchUserProfile();
-  }, [navigate]);
-
-  const handleProfileUpdate = async (e) => {
-    e.preventDefault();
-    setError("");
-    setSuccess("");
-
-    try {
-      const { user: updatedUser } = await updateProfile({ name, email });
-      setUser(updatedUser);
-      setSuccess("Profile updated successfully");
-    } catch (error) {
-      setError(error.error || "Failed to update profile");
+  useEffect(() => {
+    if (user) {
+      setName(user.name);
+      setEmail(user.email);
     }
+  }, [user]);
+
+  useEffect(() => {
+    return () => {
+      dispatch(clearError());
+      dispatch(clearSuccess());
+    };
+  }, [dispatch]);
+
+  const handleProfileUpdate = (e) => {
+    e.preventDefault();
+    dispatch(updateUserProfile({ name, email }));
   };
 
-  const handlePasswordUpdate = async (e) => {
+  const handlePasswordUpdate = (e) => {
     e.preventDefault();
-    setError("");
-    setSuccess("");
+    setValidationError("");
 
     if (newPassword !== confirmPassword) {
-      setError("Passwords do not match");
+      setValidationError("Passwords do not match");
       return;
     }
 
     if (newPassword.length < 6) {
-      setError("Password must be at least 6 characters");
+      setValidationError("Password must be at least 6 characters");
       return;
     }
 
-    try {
-      await updatePassword({ oldPassword, newPassword });
-      setSuccess("Password updated successfully");
-      setOldPassword("");
-      setNewPassword("");
-      setConfirmPassword("");
-    } catch (error) {
-      setError(error.error || "Failed to update password");
-    }
+    dispatch(updateUserPassword({ oldPassword, newPassword }));
   };
 
-  const handleLogout = async () => {
-    try {
-      await logout();
-      navigate("/login");
-    } catch (error) {
-      setError("Failed to logout");
-    }
+  const handleLogout = () => {
+    dispatch(logoutUser());
   };
 
-  if (loading) {
-    return (
-      <div className="profile-loading">
-        <div className="spinner"></div>
-        <p>Loading profile...</p>
-      </div>
-    );
-  }
+  const displayError = error || validationError;
 
   return (
     <div className="profile-container">
@@ -148,7 +119,7 @@ const Profile = () => {
       </div>
 
       <div className="profile-content">
-        {error && <div className="error-message">{error}</div>}
+        {displayError && <div className="error-message">{displayError}</div>}
         {success && <div className="success-message">{success}</div>}
 
         {activeTab === "profile" && (
@@ -173,8 +144,8 @@ const Profile = () => {
                   required
                 />
               </div>
-              <button type="submit" className="update-button">
-                Update Profile
+              <button type="submit" className="update-button" disabled={loading}>
+                {loading ? "Updating..." : "Update Profile"}
               </button>
             </form>
           </div>
@@ -211,8 +182,8 @@ const Profile = () => {
                   required
                 />
               </div>
-              <button type="submit" className="update-button">
-                Update Password
+              <button type="submit" className="update-button" disabled={loading}>
+                {loading ? "Updating..." : "Update Password"}
               </button>
             </form>
           </div>

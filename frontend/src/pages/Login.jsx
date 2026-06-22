@@ -1,36 +1,31 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { login } from '../services/authService';
+import { useDispatch, useSelector } from 'react-redux';
+import { loginUser, clearError } from '../redux/slices/userSlice';
 import './Login.css';
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
+  const dispatch = useDispatch();
+  const { isAuthenticated, loading, error } = useSelector((state) => state.user);
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Check if user is already logged in
-    const user = localStorage.getItem('user');
-    if (user) {
+    if (isAuthenticated) {
       navigate('/');
     }
-  }, [navigate]);
+  }, [isAuthenticated, navigate]);
+
+  useEffect(() => {
+    return () => {
+      dispatch(clearError());
+    };
+  }, [dispatch]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
-    setLoading(true);
-
-    try {
-      await login(email, password);
-      navigate('/');
-    } catch (error) {
-      setError(error.error || 'Invalid email or password');
-    } finally {
-      setLoading(false);
-    }
+    dispatch(loginUser({ email, password }));
   };
 
   return (

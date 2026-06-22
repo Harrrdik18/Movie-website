@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useSelector } from "react-redux";
 import {
   BrowserRouter,
   Routes,
@@ -29,6 +30,7 @@ import Register from "./pages/Register";
 import Profile from "./pages/Profile";
 
 function App() {
+  const isAuthenticated = useSelector((state) => state.user.isAuthenticated);
   const [backgroundImageUrl, setBackgroundImageUrl] = useState("");
   const [trendingMovies, setTrendingMovies] = useState([]);
   const [popularMovies, setPopularMovies] = useState([]);
@@ -37,7 +39,6 @@ function App() {
   const [loading, setLoading] = useState(true);
   const [searchResults, setSearchResults] = useState([]);
   const [showSearch, setShowSearch] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem("user"));
 
   useEffect(() => {
     const fetchAllData = async () => {
@@ -49,13 +50,11 @@ function App() {
           getUpcomingMovies(),
         ]);
 
-        // OMDB returns data in Search array format
         setTrendingMovies(trending.Search || []);
         setPopularMovies(popular.Search || []);
         setTopRatedMovies(topRated.Search || []);
         setUpcomingMovies(upcoming.Search || []);
 
-        // Set background image from first movie poster (OMDB uses Poster field)
         if (trending.Search && trending.Search.length > 0) {
           setBackgroundImageUrl(trending.Search[0].Poster);
         }
@@ -67,16 +66,6 @@ function App() {
     };
 
     fetchAllData();
-  }, []);
-
-  // Update login status when localStorage changes
-  useEffect(() => {
-    const handleStorageChange = () => {
-      setIsLoggedIn(!!localStorage.getItem("user"));
-    };
-
-    window.addEventListener("storage", handleStorageChange);
-    return () => window.removeEventListener("storage", handleStorageChange);
   }, []);
 
   const handleSearch = async (query) => {
@@ -116,7 +105,7 @@ function App() {
             path="/"
             element={
               <>
-                <Navbar onSearch={handleSearch} isLoggedIn={isLoggedIn} />
+                <Navbar onSearch={handleSearch} />
                 <div className="main-content">
                   {loading ? (
                     <div className="loading">
@@ -174,7 +163,7 @@ function App() {
             path="/movie/:id"
             element={
               <>
-                <Navbar onSearch={handleSearch} isLoggedIn={isLoggedIn} />
+                <Navbar onSearch={handleSearch} />
                 <div className="main-content">
                   <Movie />
                 </div>
@@ -186,18 +175,17 @@ function App() {
           <Route path="/movies" element={<Movies />} />
           <Route path="/tv-series" element={<TVSeries />} />
 
-          {/* Authentication Routes */}
           <Route
             path="/login"
-            element={isLoggedIn ? <Navigate to="/" /> : <Login />}
+            element={isAuthenticated ? <Navigate to="/" /> : <Login />}
           />
           <Route
             path="/register"
-            element={isLoggedIn ? <Navigate to="/" /> : <Register />}
+            element={isAuthenticated ? <Navigate to="/" /> : <Register />}
           />
           <Route
             path="/profile"
-            element={isLoggedIn ? <Profile /> : <Navigate to="/login" />}
+            element={isAuthenticated ? <Profile /> : <Navigate to="/login" />}
           />
         </Routes>
       </div>

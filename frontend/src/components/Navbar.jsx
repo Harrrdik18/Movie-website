@@ -1,8 +1,10 @@
 import React, { useState } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
 import "./Navbar.css";
 
-const Navbar = ({ onSearch, isLoggedIn }) => {
+const Navbar = ({ onSearch }) => {
+  const isLoggedIn = useSelector((state) => state.user.isAuthenticated);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const navigate = useNavigate();
