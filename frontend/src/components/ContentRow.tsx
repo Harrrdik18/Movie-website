@@ -1,12 +1,18 @@
 import React, { useRef } from "react";
 import { useNavigate } from "react-router-dom";
+import type { MovieEntity } from "../types";
 import "./ContentRow.css";
 
-const ContentRow = ({ title, movies }) => {
-  const rowRef = useRef(null);
+interface ContentRowProps {
+  title: string;
+  movies: MovieEntity[];
+}
+
+const ContentRow = ({ title, movies }: ContentRowProps) => {
+  const rowRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
 
-  const scroll = (direction) => {
+  const scroll = (direction: "left" | "right") => {
     if (rowRef.current) {
       const { scrollLeft, clientWidth } = rowRef.current;
       const scrollTo =
@@ -27,13 +33,13 @@ const ContentRow = ({ title, movies }) => {
         <div className="row-posters" ref={rowRef}>
           {movies.map((movie) => (
             <div
-              key={movie.imdbID || movie.id}
+              key={movie.imdbID}
               className="row-poster"
-              onClick={() => navigate(`/movie/${movie.imdbID || movie.id}`)}
+              onClick={() => navigate(`/movie/${movie.imdbID}`)}
             >
-              <img src={movie.Poster} alt={movie.Title || movie.title} />
+              <img src={movie.Poster} alt={movie.Title} />
               <div className="poster-info">
-                <h3>{movie.Title || movie.title}</h3>
+                <h3>{movie.Title}</h3>
                 <div className="poster-meta">
                   <p>{movie.Year}</p>
                   <div className="poster-rating">

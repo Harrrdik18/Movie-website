@@ -1,4 +1,5 @@
-import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { createSlice, createAsyncThunk, createEntityAdapter } from "@reduxjs/toolkit";
+import type { MovieEntity } from "../../types";
 import {
   discoverMovies,
   discoverTVShows,
@@ -13,6 +14,10 @@ import {
   getTopRatedMovies,
   getUpcomingMovies,
 } from "../../services/omdbService";
+
+const moviesAdapter = createEntityAdapter<MovieEntity>({
+  selectId: (movie) => movie.imdbID,
+});
 
 export const fetchHomeData = createAsyncThunk(
   "movies/fetchHomeData",
@@ -40,30 +45,30 @@ export const fetchHomeData = createAsyncThunk(
 
 export const discoverMoviesThunk = createAsyncThunk(
   "movies/discoverMovies",
-  async (params, { rejectWithValue }) => {
+  async (params: Record<string, unknown>, { rejectWithValue }) => {
     try {
-      const response = await discoverMovies(params);
+      const response = await discoverMovies(params as { genre?: string; year?: string; page?: number });
       return {
         movies: response.Search || [],
         totalResults: parseInt(response.totalResults) || 0,
       };
     } catch (error) {
-      return rejectWithValue(error.message || "Failed to fetch movies");
+      return rejectWithValue((error as Error).message || "Failed to fetch movies");
     }
   }
 );
 
 export const fetchTVShows = createAsyncThunk(
   "movies/fetchTVShows",
-  async (params, { rejectWithValue }) => {
+  async (params: Record<string, unknown>, { rejectWithValue }) => {
     try {
-      const response = await discoverTVShows(params);
+      const response = await discoverTVShows(params as { year?: string; page?: number });
       return {
         shows: response.Search || [],
         totalResults: parseInt(response.totalResults) || 0,
       };
     } catch (error) {
-      return rejectWithValue(error.message || "Failed to fetch TV shows");
+      return rejectWithValue((error as Error).message || "Failed to fetch TV shows");
     }
   }
 );
@@ -82,7 +87,7 @@ export const fetchGenres = createAsyncThunk(
 
 export const fetchMoviesByGenre = createAsyncThunk(
   "movies/fetchMoviesByGenre",
-  async (genre, { rejectWithValue }) => {
+  async (genre: string, { rejectWithValue }) => {
     try {
       const response = await getMoviesByGenre(genre);
       return response.Search || [];
@@ -94,7 +99,7 @@ export const fetchMoviesByGenre = createAsyncThunk(
 
 export const fetchMoviesByCountry = createAsyncThunk(
   "movies/fetchMoviesByCountry",
-  async (countryCode, { rejectWithValue }) => {
+  async (countryCode: string, { rejectWithValue }) => {
     try {
       const response = await getMoviesByCountry(countryCode);
       return response.Search || [];
@@ -106,7 +111,7 @@ export const fetchMoviesByCountry = createAsyncThunk(
 
 export const fetchMovieDetail = createAsyncThunk(
   "movies/fetchMovieDetail",
-  async (id, { rejectWithValue }) => {
+  async (id: string, { rejectWithValue }) => {
     try {
       const [detailsRes, similarRes] = await Promise.all([
         getMovieDetails(id),
@@ -124,7 +129,7 @@ export const fetchMovieDetail = createAsyncThunk(
 
 export const searchMoviesThunk = createAsyncThunk(
   "movies/searchMovies",
-  async (query, { rejectWithValue }) => {
+  async (query: string, { rejectWithValue }) => {
     try {
       const response = await searchMovies(query);
       return response.Search || [];
@@ -134,7 +139,41 @@ export const searchMoviesThunk = createAsyncThunk(
   }
 );
 
-const initialState = {
+interface MoviesState {
+  entities: Record<string, MovieEntity>;
+  ids: string[];
+  trending: string[];
+  popular: string[];
+  topRated: string[];
+  upcoming: string[];
+  homeLoading: boolean;
+  homeError: string | null;
+  discover: string[];
+  discoverLoading: boolean;
+  discoverTotalResults: number;
+  discoverError: string | null;
+  tvShows: string[];
+  tvLoading: boolean;
+  tvTotalResults: number;
+  tvError: string | null;
+  genres: Array<{ id: number; name: string }>;
+  genreMovies: string[];
+  genreLoading: boolean;
+  genreError: string | null;
+  countryMovies: string[];
+  countryLoading: boolean;
+  countryError: string | null;
+  movieDetails: string | null;
+  similarMovies: string[];
+  detailLoading: boolean;
+  detailError: string | null;
+  searchResults: string[];
+  searchLoading: boolean;
+  searchError: string | null;
+  backgroundImageUrl: string;
+}
+
+const initialState: MoviesState = moviesAdapter.getInitialState({
   trending: [],
   popular: [],
   topRated: [],
@@ -171,13 +210,7 @@ const initialState = {
   searchError: null,
 
   backgroundImageUrl: "",
-};
-
-const isMoviesPending = (action) =>
-  action.type.startsWith("movies/") && action.type.endsWith("/pending");
-
-const isMoviesRejected = (action) =>
-  action.type.startsWith("movies/") && action.type.endsWith("/rejected");
+});
 
 const movieSlice = createSlice({
   name: "movies",
@@ -190,52 +223,55 @@ const movieSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      // Home data
       .addCase(fetchHomeData.pending, (state) => {
         state.homeLoading = true;
         state.homeError = null;
       })
       .addCase(fetchHomeData.fulfilled, (state, action) => {
         state.homeLoading = false;
-        state.trending = action.payload.trending;
-        state.popular = action.payload.popular;
-        state.topRated = action.payload.topRated;
-        state.upcoming = action.payload.upcoming;
-        state.backgroundImageUrl = action.payload.background;
+        const { trending, popular, topRated, upcoming, background } = action.payload;
+        moviesAdapter.upsertMany(state, trending);
+        state.trending = trending.map((m) => m.imdbID);
+        moviesAdapter.upsertMany(state, popular);
+        state.popular = popular.map((m) => m.imdbID);
+        moviesAdapter.upsertMany(state, topRated);
+        state.topRated = topRated.map((m) => m.imdbID);
+        moviesAdapter.upsertMany(state, upcoming);
+        state.upcoming = upcoming.map((m) => m.imdbID);
+        state.backgroundImageUrl = background;
       })
       .addCase(fetchHomeData.rejected, (state, action) => {
         state.homeLoading = false;
-        state.homeError = action.payload;
+        state.homeError = action.payload as string;
       })
-      // Discover (Movies page)
       .addCase(discoverMoviesThunk.pending, (state) => {
         state.discoverLoading = true;
         state.discoverError = null;
       })
       .addCase(discoverMoviesThunk.fulfilled, (state, action) => {
         state.discoverLoading = false;
-        state.discover = action.payload.movies;
+        moviesAdapter.upsertMany(state, action.payload.movies);
+        state.discover = action.payload.movies.map((m) => m.imdbID);
         state.discoverTotalResults = action.payload.totalResults;
       })
       .addCase(discoverMoviesThunk.rejected, (state, action) => {
         state.discoverLoading = false;
-        state.discoverError = action.payload;
+        state.discoverError = action.payload as string;
       })
-      // TV Shows
       .addCase(fetchTVShows.pending, (state) => {
         state.tvLoading = true;
         state.tvError = null;
       })
       .addCase(fetchTVShows.fulfilled, (state, action) => {
         state.tvLoading = false;
-        state.tvShows = action.payload.shows;
+        moviesAdapter.upsertMany(state, action.payload.shows);
+        state.tvShows = action.payload.shows.map((m) => m.imdbID);
         state.tvTotalResults = action.payload.totalResults;
       })
       .addCase(fetchTVShows.rejected, (state, action) => {
         state.tvLoading = false;
-        state.tvError = action.payload;
+        state.tvError = action.payload as string;
       })
-      // Genres list
       .addCase(fetchGenres.pending, (state) => {
         state.genreLoading = true;
         state.genreError = null;
@@ -246,60 +282,63 @@ const movieSlice = createSlice({
       })
       .addCase(fetchGenres.rejected, (state, action) => {
         state.genreLoading = false;
-        state.genreError = action.payload;
+        state.genreError = action.payload as string;
       })
-      // Movies by genre
       .addCase(fetchMoviesByGenre.pending, (state) => {
         state.genreLoading = true;
         state.genreError = null;
       })
       .addCase(fetchMoviesByGenre.fulfilled, (state, action) => {
         state.genreLoading = false;
-        state.genreMovies = action.payload;
+        moviesAdapter.upsertMany(state, action.payload);
+        state.genreMovies = action.payload.map((m) => m.imdbID);
       })
       .addCase(fetchMoviesByGenre.rejected, (state, action) => {
         state.genreLoading = false;
-        state.genreError = action.payload;
+        state.genreError = action.payload as string;
       })
-      // Movies by country
       .addCase(fetchMoviesByCountry.pending, (state) => {
         state.countryLoading = true;
         state.countryError = null;
       })
       .addCase(fetchMoviesByCountry.fulfilled, (state, action) => {
         state.countryLoading = false;
-        state.countryMovies = action.payload;
+        moviesAdapter.upsertMany(state, action.payload);
+        state.countryMovies = action.payload.map((m) => m.imdbID);
       })
       .addCase(fetchMoviesByCountry.rejected, (state, action) => {
         state.countryLoading = false;
-        state.countryError = action.payload;
+        state.countryError = action.payload as string;
       })
-      // Movie detail
       .addCase(fetchMovieDetail.pending, (state) => {
         state.detailLoading = true;
         state.detailError = null;
+        state.movieDetails = null;
+        state.similarMovies = [];
       })
       .addCase(fetchMovieDetail.fulfilled, (state, action) => {
         state.detailLoading = false;
-        state.movieDetails = action.payload.details;
-        state.similarMovies = action.payload.similar;
+        moviesAdapter.upsertMany(state, [action.payload.details]);
+        state.movieDetails = action.payload.details.imdbID;
+        moviesAdapter.upsertMany(state, action.payload.similar);
+        state.similarMovies = action.payload.similar.map((m) => m.imdbID);
       })
       .addCase(fetchMovieDetail.rejected, (state, action) => {
         state.detailLoading = false;
-        state.detailError = action.payload;
+        state.detailError = action.payload as string;
       })
-      // Search
       .addCase(searchMoviesThunk.pending, (state) => {
         state.searchLoading = true;
         state.searchError = null;
       })
       .addCase(searchMoviesThunk.fulfilled, (state, action) => {
         state.searchLoading = false;
-        state.searchResults = action.payload;
+        moviesAdapter.upsertMany(state, action.payload);
+        state.searchResults = action.payload.map((m) => m.imdbID);
       })
       .addCase(searchMoviesThunk.rejected, (state, action) => {
         state.searchLoading = false;
-        state.searchError = action.payload;
+        state.searchError = action.payload as string;
       });
   },
 });

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
+import type { AppDispatch } from "../redux/store";
 import { discoverMoviesThunk } from "../redux/slices/movieSlice";
 import {
   selectDiscover,
@@ -15,7 +16,7 @@ const Movies = () => {
   const [sortBy, setSortBy] = useState("popularity.desc");
   const [year, setYear] = useState("");
   const navigate = useNavigate();
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
   const movies = useSelector(selectDiscover);
   const discoverLoading = useSelector(selectDiscoverLoading);
   const discoverError = useSelector(selectDiscoverError);
@@ -26,18 +27,18 @@ const Movies = () => {
   );
 
   useEffect(() => {
-    const params = {};
+    const params: Record<string, unknown> = {};
     if (year) params.year = year;
     params.page = page;
     dispatch(discoverMoviesThunk(params));
   }, [page, sortBy, year, dispatch]);
 
-  const handleSortChange = (e) => {
+  const handleSortChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setSortBy(e.target.value);
     setPage(1);
   };
 
-  const handleYearChange = (e) => {
+  const handleYearChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setYear(e.target.value);
     setPage(1);
   };

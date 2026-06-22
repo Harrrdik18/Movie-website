@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import type { AppDispatch } from "./redux/store";
 import { selectIsAuthenticated } from "./redux/selectors/userSelectors";
 import {
   selectTrending,
@@ -19,16 +20,13 @@ import {
   BrowserRouter,
   Routes,
   Route,
-  useNavigate,
   Navigate,
 } from "react-router-dom";
-import Carousel from "./components/Carousel";
 import "./App.css";
 import Navbar from "./components/Navbar";
 import Movie from "./components/Movie";
 import HeroSection from "./components/HeroSection";
 import ContentRow from "./components/ContentRow";
-import SearchBar from "./components/SearchBar";
 import Genre from "./pages/Genre";
 import Country from "./pages/Country";
 import Movies from "./pages/Movies";
@@ -38,7 +36,7 @@ import Register from "./pages/Register";
 import Profile from "./pages/Profile";
 
 function App() {
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
   const isAuthenticated = useSelector(selectIsAuthenticated);
   const trendingMovies = useSelector(selectTrending);
   const popularMovies = useSelector(selectPopular);
@@ -53,7 +51,7 @@ function App() {
     dispatch(fetchHomeData());
   }, [dispatch]);
 
-  const handleSearch = (query) => {
+  const handleSearch = (query: string) => {
     if (query.trim() === "") {
       dispatch(clearSearch());
       setShowSearch(false);

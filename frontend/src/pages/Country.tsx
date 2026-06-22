@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
+import type { AppDispatch } from "../redux/store";
 import { fetchMoviesByCountry } from "../redux/slices/movieSlice";
 import {
   selectCountryMovies,
@@ -8,14 +9,19 @@ import {
 } from "../redux/selectors/movieSelectors";
 import "./Country.css";
 
+interface Country {
+  code: string;
+  name: string;
+}
+
 const Country = () => {
-  const [selectedCountry, setSelectedCountry] = useState(null);
+  const [selectedCountry, setSelectedCountry] = useState<string | null>(null);
   const navigate = useNavigate();
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
   const movies = useSelector(selectCountryMovies);
   const loading = useSelector(selectCountryLoading);
 
-  const countries = [
+  const countries: Country[] = [
     { code: "US", name: "United States" },
     { code: "GB", name: "United Kingdom" },
     { code: "IN", name: "India" },
@@ -28,7 +34,7 @@ const Country = () => {
     { code: "BR", name: "Brazil" },
   ];
 
-  const handleCountryClick = (countryCode) => {
+  const handleCountryClick = (countryCode: string) => {
     setSelectedCountry(countryCode);
     dispatch(fetchMoviesByCountry(countryCode));
   };

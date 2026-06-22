@@ -1,6 +1,11 @@
 import React from "react";
 
-function Card({ poster, title }) {
+interface CardProps {
+  poster: string;
+  title: string;
+}
+
+function Card({ poster, title }: CardProps) {
   return (
     <div>
       <img className="scale-40" src={poster} title={title} />

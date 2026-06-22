@@ -1,23 +1,24 @@
 import { createSelector } from "@reduxjs/toolkit";
+import type { RootState } from "../store";
+import type { MovieEntity } from "../../types";
 
-const selectMoviesState = (state) => state.movies;
+const selectMoviesState = (state: RootState) => state.movies;
+
+const populateMovies = (state: { entities: Record<string, MovieEntity | undefined> }, ids: string[]): MovieEntity[] =>
+  ids.map((id) => state.entities[id]).filter((m): m is MovieEntity => Boolean(m));
 
 // Home
-export const selectTrending = createSelector(
-  selectMoviesState,
-  (m) => m.trending
+export const selectTrending = createSelector(selectMoviesState, (m) =>
+  populateMovies(m, m.trending)
 );
-export const selectPopular = createSelector(
-  selectMoviesState,
-  (m) => m.popular
+export const selectPopular = createSelector(selectMoviesState, (m) =>
+  populateMovies(m, m.popular)
 );
-export const selectTopRated = createSelector(
-  selectMoviesState,
-  (m) => m.topRated
+export const selectTopRated = createSelector(selectMoviesState, (m) =>
+  populateMovies(m, m.topRated)
 );
-export const selectUpcoming = createSelector(
-  selectMoviesState,
-  (m) => m.upcoming
+export const selectUpcoming = createSelector(selectMoviesState, (m) =>
+  populateMovies(m, m.upcoming)
 );
 export const selectHomeLoading = createSelector(
   selectMoviesState,
@@ -29,9 +30,8 @@ export const selectBackgroundImageUrl = createSelector(
 );
 
 // Discover
-export const selectDiscover = createSelector(
-  selectMoviesState,
-  (m) => m.discover
+export const selectDiscover = createSelector(selectMoviesState, (m) =>
+  populateMovies(m, m.discover)
 );
 export const selectDiscoverLoading = createSelector(
   selectMoviesState,
@@ -51,9 +51,8 @@ export const selectDiscoverTotalPages = createSelector(
 );
 
 // TV
-export const selectTVShows = createSelector(
-  selectMoviesState,
-  (m) => m.tvShows
+export const selectTVShows = createSelector(selectMoviesState, (m) =>
+  populateMovies(m, m.tvShows)
 );
 export const selectTVLoading = createSelector(
   selectMoviesState,
@@ -73,13 +72,9 @@ export const selectTVTotalPages = createSelector(
 );
 
 // Genre
-export const selectGenres = createSelector(
-  selectMoviesState,
-  (m) => m.genres
-);
-export const selectGenreMovies = createSelector(
-  selectMoviesState,
-  (m) => m.genreMovies
+export const selectGenres = createSelector(selectMoviesState, (m) => m.genres);
+export const selectGenreMovies = createSelector(selectMoviesState, (m) =>
+  populateMovies(m, m.genreMovies)
 );
 export const selectGenreLoading = createSelector(
   selectMoviesState,
@@ -87,9 +82,8 @@ export const selectGenreLoading = createSelector(
 );
 
 // Country
-export const selectCountryMovies = createSelector(
-  selectMoviesState,
-  (m) => m.countryMovies
+export const selectCountryMovies = createSelector(selectMoviesState, (m) =>
+  populateMovies(m, m.countryMovies)
 );
 export const selectCountryLoading = createSelector(
   selectMoviesState,
@@ -99,11 +93,10 @@ export const selectCountryLoading = createSelector(
 // Detail
 export const selectMovieDetails = createSelector(
   selectMoviesState,
-  (m) => m.movieDetails
+  (m) => (m.movieDetails ? m.entities[m.movieDetails] ?? null : null) as MovieEntity | null
 );
-export const selectSimilarMovies = createSelector(
-  selectMoviesState,
-  (m) => m.similarMovies
+export const selectSimilarMovies = createSelector(selectMoviesState, (m) =>
+  populateMovies(m, m.similarMovies)
 );
 export const selectDetailLoading = createSelector(
   selectMoviesState,
@@ -115,9 +108,8 @@ export const selectDetailError = createSelector(
 );
 
 // Search
-export const selectSearchResults = createSelector(
-  selectMoviesState,
-  (m) => m.searchResults
+export const selectSearchResults = createSelector(selectMoviesState, (m) =>
+  populateMovies(m, m.searchResults)
 );
 export const selectSearchLoading = createSelector(
   selectMoviesState,

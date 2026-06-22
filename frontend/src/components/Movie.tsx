@@ -1,6 +1,7 @@
 import React, { useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
+import type { AppDispatch } from "../redux/store";
 import { fetchMovieDetail } from "../redux/slices/movieSlice";
 import {
   selectMovieDetails,
@@ -11,15 +12,17 @@ import {
 import "./Movie.css";
 
 const Movie = () => {
-  const { id } = useParams();
-  const dispatch = useDispatch();
+  const { id } = useParams<{ id: string }>();
+  const dispatch = useDispatch<AppDispatch>();
   const movieDetails = useSelector(selectMovieDetails);
   const similarMovies = useSelector(selectSimilarMovies);
   const loading = useSelector(selectDetailLoading);
   const error = useSelector(selectDetailError);
 
   useEffect(() => {
-    dispatch(fetchMovieDetail(id));
+    if (id) {
+      dispatch(fetchMovieDetail(id));
+    }
   }, [id, dispatch]);
 
   if (loading) {
@@ -34,25 +37,26 @@ const Movie = () => {
     return <div className="movie-error">No movie details found.</div>;
   }
 
-  const formatRuntime = (minutes) => {
+  const formatRuntime = (minutes: string | number | undefined): string => {
     if (!minutes) return "N/A";
-    const hours = Math.floor(minutes / 60);
-    const mins = minutes % 60;
-    return `${hours}h ${mins}m`;
+    const mins = typeof minutes === "string" ? parseInt(minutes) : minutes;
+    const hours = Math.floor(mins / 60);
+    const remaining = mins % 60;
+    return `${hours}h ${remaining}m`;
   };
 
-  const formatCurrency = (amount) => {
+  const formatCurrency = (amount: string | number | undefined): string => {
     if (!amount) return "N/A";
+    const num = typeof amount === "string" ? parseInt(amount) : amount;
     return new Intl.NumberFormat("en-US", {
       style: "currency",
       currency: "USD",
       maximumFractionDigits: 0,
-    }).format(amount);
+    }).format(num);
   };
 
   return (
     <div className="movie-page">
-      {/* Hero Section */}
       <div
         className="movie-hero"
         style={{
@@ -65,7 +69,7 @@ const Movie = () => {
               src={movieDetails.Poster}
               alt={movieDetails.Title}
               onError={(e) => {
-                e.target.src =
+                (e.target as HTMLImageElement).src =
                   "https://via.placeholder.com/500x750?text=No+Poster";
               }}
             />
@@ -90,7 +94,7 @@ const Movie = () => {
 
             {movieDetails.Genre && movieDetails.Genre !== "N/A" && (
               <div className="movie-genres">
-                {movieDetails.Genre.split(", ").map((genre, index) => (
+                {movieDetails.Genre.split(", ").map((genre: string, index: number) => (
                   <span key={index} className="movie-genre">
                     {genre}
                   </span>
@@ -128,19 +132,17 @@ const Movie = () => {
         </div>
       </div>
 
-      {/* Cast Section */}
       {movieDetails.Actors && (
         <div className="movie-section">
           <h2>Cast</h2>
           <div className="cast-grid">
-            {movieDetails.Actors.split(", ").map((actor, index) => (
+            {movieDetails.Actors.split(", ").map((actor: string, index: number) => (
               <ActorCard key={index} actorName={actor} />
             ))}
           </div>
         </div>
       )}
 
-      {/* Similar Movies Section */}
       {similarMovies.length > 0 && (
         <div className="movie-section">
           <h2>Similar Movies</h2>
@@ -151,7 +153,7 @@ const Movie = () => {
                   src={movie.Poster}
                   alt={movie.Title}
                   onError={(e) => {
-                    e.target.src =
+                    (e.target as HTMLImageElement).src =
                       "https://via.placeholder.com/300x450?text=No+Poster";
                   }}
                 />
@@ -171,7 +173,11 @@ const Movie = () => {
   );
 };
 
-const ActorCard = ({ actorName }) => {
+interface ActorCardProps {
+  actorName: string;
+}
+
+const ActorCard = ({ actorName }: ActorCardProps) => {
   const [imgUrl, setImgUrl] = React.useState(
     "https://via.placeholder.com/200x300?text=Actor"
   );
@@ -179,7 +185,6 @@ const ActorCard = ({ actorName }) => {
   React.useEffect(() => {
     async function fetchImage() {
       try {
-        // Step 1: Get Wikipedia page for actor
         const searchRes = await fetch(
           `https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(
             actorName
@@ -192,7 +197,6 @@ const ActorCard = ({ actorName }) => {
           searchData.query.search.length > 0
         ) {
           const pageTitle = searchData.query.search[0].title;
-          // Step 2: Get Wikidata entity ID from Wikipedia page
           const pageRes = await fetch(
             `https://en.wikipedia.org/w/api.php?action=query&prop=pageprops&titles=${encodeURIComponent(
               pageTitle
@@ -203,14 +207,12 @@ const ActorCard = ({ actorName }) => {
           const pageId = Object.keys(pages)[0];
           const wikibaseId = pages[pageId]?.pageprops?.wikibase_item;
           if (wikibaseId) {
-            // Step 3: Get image from Wikidata
             const wikidataRes = await fetch(
               `https://www.wikidata.org/w/api.php?action=wbgetclaims&entity=${wikibaseId}&property=P18&format=json&origin=*`
             );
             const wikidataData = await wikidataRes.json();
             const claims = wikidataData.claims?.P18;
             if (claims && claims.length > 0) {
-              // P18 is the image property
               const imageName = claims[0].mainsnak.datavalue.value;
               setImgUrl(
                 `https://commons.wikimedia.org/wiki/Special:FilePath/${encodeURIComponent(
@@ -221,7 +223,7 @@ const ActorCard = ({ actorName }) => {
             }
           }
         }
-      } catch (e) {
+      } catch (_e) {
         // Ignore and use placeholder
       }
       setImgUrl("https://via.placeholder.com/200x300?text=Actor");
@@ -235,7 +237,8 @@ const ActorCard = ({ actorName }) => {
         src={imgUrl}
         alt={actorName}
         onError={(e) => {
-          e.target.src = "https://via.placeholder.com/200x300?text=No+Image";
+          (e.target as HTMLImageElement).src =
+            "https://via.placeholder.com/200x300?text=No+Image";
         }}
       />
       <h3>{actorName}</h3>

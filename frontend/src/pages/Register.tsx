@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
+import type { AppDispatch } from '../redux/store';
 import { registerUser, clearError } from '../redux/slices/userSlice';
 import { selectIsAuthenticated, selectUserLoading, selectUserError } from '../redux/selectors/userSelectors';
 import './Register.css';
@@ -11,7 +12,7 @@ const Register = () => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [validationError, setValidationError] = useState('');
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
   const isAuthenticated = useSelector(selectIsAuthenticated);
   const loading = useSelector(selectUserLoading);
   const error = useSelector(selectUserError);
@@ -29,11 +30,10 @@ const Register = () => {
     };
   }, [dispatch]);
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setValidationError('');
 
-    // Validate form
     if (password !== confirmPassword) {
       setValidationError('Passwords do not match');
       return;

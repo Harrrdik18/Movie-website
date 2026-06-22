@@ -1,22 +1,35 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
+import type { MovieEntity } from "../types";
 import "./HeroSection.css";
 
-const HeroSection = ({ movies }) => {
+interface HeroSectionProps {
+  movies: MovieEntity[];
+}
+
+const HeroSection = ({ movies }: HeroSectionProps) => {
   const navigate = useNavigate();
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
   const [isTransitioning, setIsTransitioning] = useState(false);
 
+  const handleNext = useCallback(() => {
+    if (isTransitioning) return;
+    setIsTransitioning(true);
+    setCurrentIndex((prevIndex) => (prevIndex + 1) % movies.length);
+    setIsAutoPlaying(false);
+    setTimeout(() => setIsTransitioning(false), 500);
+  }, [isTransitioning, movies.length]);
+
   useEffect(() => {
-    let interval;
+    let interval: ReturnType<typeof setInterval>;
     if (isAutoPlaying) {
       interval = setInterval(() => {
         handleNext();
-      }, 5000); // Change slide every 5 seconds
+      }, 5000);
     }
     return () => clearInterval(interval);
-  }, [isAutoPlaying, movies.length]);
+  }, [isAutoPlaying, handleNext]);
 
   const handlePrev = () => {
     if (isTransitioning) return;
@@ -25,23 +38,15 @@ const HeroSection = ({ movies }) => {
       (prevIndex) => (prevIndex - 1 + movies.length) % movies.length
     );
     setIsAutoPlaying(false);
-    setTimeout(() => setIsTransitioning(false), 500); // Match transition duration
+    setTimeout(() => setIsTransitioning(false), 500);
   };
 
-  const handleNext = () => {
-    if (isTransitioning) return;
-    setIsTransitioning(true);
-    setCurrentIndex((prevIndex) => (prevIndex + 1) % movies.length);
-    setIsAutoPlaying(false);
-    setTimeout(() => setIsTransitioning(false), 500); // Match transition duration
-  };
-
-  const handleDotClick = (index) => {
+  const handleDotClick = (index: number) => {
     if (isTransitioning || index === currentIndex) return;
     setIsTransitioning(true);
     setCurrentIndex(index);
     setIsAutoPlaying(false);
-    setTimeout(() => setIsTransitioning(false), 500); // Match transition duration
+    setTimeout(() => setIsTransitioning(false), 500);
   };
 
   if (!movies || movies.length === 0) return null;
@@ -79,13 +84,7 @@ const HeroSection = ({ movies }) => {
           </button>
           <button
             className="more-info-button"
-            onClick={() => {
-              console.log(
-                "More Info button clicked, navigating to:",
-                `/movie/${currentMovie.imdbID}`
-              );
-              navigate(`/movie/${currentMovie.imdbID}`);
-            }}
+            onClick={() => navigate(`/movie/${currentMovie.imdbID}`)}
           >
             <span className="info-icon">ℹ</span>
             More Info
@@ -96,17 +95,16 @@ const HeroSection = ({ movies }) => {
       <div className="hero-backgrounds">
         {movies.map((movie, index) => (
           <img
-            key={movie.imdbID || movie.id}
+            key={movie.imdbID}
             className={`hero-background ${
               index === currentIndex ? "active" : ""
             }`}
             src={movie.Poster}
-            alt={movie.Title || movie.title}
+            alt={movie.Title}
           />
         ))}
       </div>
 
-      {/* Navigation Controls */}
       <div className="hero-navigation">
         <button className="nav-button prev" onClick={handlePrev}>
           ‹
@@ -128,9 +126,8 @@ const HeroSection = ({ movies }) => {
   );
 };
 
-// Helper function to get genre name from ID
-const getGenreName = (genreId) => {
-  const genres = {
+const getGenreName = (genreId: number): string => {
+  const genres: Record<number, string> = {
     28: "Action",
     12: "Adventure",
     16: "Animation",

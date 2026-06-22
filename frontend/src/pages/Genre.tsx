@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
+import type { AppDispatch } from "../redux/store";
 import { fetchGenres, fetchMoviesByGenre } from "../redux/slices/movieSlice";
 import {
   selectGenres,
@@ -10,9 +11,9 @@ import {
 import "./Genre.css";
 
 const Genre = () => {
-  const [selectedGenre, setSelectedGenre] = useState(null);
+  const [selectedGenre, setSelectedGenre] = useState<string | null>(null);
   const navigate = useNavigate();
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
   const genres = useSelector(selectGenres);
   const movies = useSelector(selectGenreMovies);
   const loading = useSelector(selectGenreLoading);
@@ -21,7 +22,7 @@ const Genre = () => {
     dispatch(fetchGenres());
   }, [dispatch]);
 
-  const handleGenreClick = (genreName) => {
+  const handleGenreClick = (genreName: string) => {
     setSelectedGenre(genreName);
     dispatch(fetchMoviesByGenre(genreName));
   };

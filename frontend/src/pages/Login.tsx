@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
+import type { AppDispatch } from '../redux/store';
 import { loginUser, clearError } from '../redux/slices/userSlice';
 import { selectIsAuthenticated, selectUserLoading, selectUserError } from '../redux/selectors/userSelectors';
 import './Login.css';
@@ -8,7 +9,7 @@ import './Login.css';
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
   const isAuthenticated = useSelector(selectIsAuthenticated);
   const loading = useSelector(selectUserLoading);
   const error = useSelector(selectUserError);
@@ -26,7 +27,7 @@ const Login = () => {
     };
   }, [dispatch]);
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     dispatch(loginUser({ email, password }));
   };

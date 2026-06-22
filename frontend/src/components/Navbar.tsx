@@ -4,13 +4,17 @@ import { useSelector } from "react-redux";
 import { selectIsAuthenticated } from "../redux/selectors/userSelectors";
 import "./Navbar.css";
 
-const Navbar = ({ onSearch }) => {
+interface NavbarProps {
+  onSearch: (query: string) => void;
+}
+
+const Navbar = ({ onSearch }: NavbarProps) => {
   const isLoggedIn = useSelector(selectIsAuthenticated);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const navigate = useNavigate();
 
-  const handleSearch = (e) => {
+  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     const query = e.target.value;
     setSearchQuery(query);
     onSearch(query);

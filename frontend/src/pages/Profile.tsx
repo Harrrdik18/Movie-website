@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
+import type { AppDispatch } from "../redux/store";
 import {
   fetchUserProfile,
   updateUserProfile,
@@ -19,7 +20,7 @@ import {
 import "./Profile.css";
 
 const Profile = () => {
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
   const user = useSelector(selectUser);
   const loading = useSelector(selectUserLoading);
@@ -57,12 +58,12 @@ const Profile = () => {
     };
   }, [dispatch]);
 
-  const handleProfileUpdate = (e) => {
+  const handleProfileUpdate = (e: React.FormEvent) => {
     e.preventDefault();
     dispatch(updateUserProfile({ name, email }));
   };
 
-  const handlePasswordUpdate = (e) => {
+  const handlePasswordUpdate = (e: React.FormEvent) => {
     e.preventDefault();
     setValidationError("");
 
