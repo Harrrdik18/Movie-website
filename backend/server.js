@@ -3,7 +3,10 @@ require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
+const morgan = require("morgan");
 const { connectRedis } = require("./config/redis");
+const ErrorHandler = require("./utils/errorHandler");
+const logger = require("./utils/logger");
 
 const connectDatabase = require("./config/database");
 
@@ -11,9 +14,9 @@ const connectDatabase = require("./config/database");
   try {
     await connectDatabase();
     // await connectRedis();
-    console.log("Database and Redis connected successfully");
+    logger.info("Database and Redis connected successfully");
   } catch (error) {
-    console.error("Error connecting to database or Redis:", error);
+    logger.error("Error connecting to database or Redis:", error);
     process.exit(1);
   }
 })();
@@ -34,6 +37,8 @@ app.use(
   }),
 );
 
+app.use(morgan("dev", { stream: { write: (msg) => logger.http(msg.trim()) } }));
+
 const userRoutes = require("./routes/userRoutes");
 const omdbRoutes = require("./routes/omdbRoutes");
 const movieRoutes = require("./routes/movieRoutes");
@@ -47,9 +52,48 @@ app.get("/", (req, res) => {
 });
 
 app.use((err, req, res, next) => {
-  res.status(err.statusCode || 500).json({
+  let statusCode = err.statusCode || 500;
+  let message = err.message || "Internal Server Error";
+
+  // Mongoose Validation Error
+  if (err.name === "ValidationError") {
+    statusCode = 400;
+    message = Object.values(err.errors).map((e) => e.message).join(", ");
+  }
+
+  // Mongoose CastError (invalid ObjectId)
+  if (err.name === "CastError") {
+    statusCode = 400;
+    message = `Resource not found. Invalid ${err.path}`;
+  }
+
+  // Mongoose duplicate key error
+  if (err.code === 11000) {
+    statusCode = 400;
+    const field = Object.keys(err.keyValue).join(", ");
+    message = `Duplicate value for ${field}. This ${field} already exists.`;
+  }
+
+  // JWT errors
+  if (err.name === "JsonWebTokenError") {
+    statusCode = 401;
+    message = "Invalid token. Please log in again.";
+  }
+
+  if (err.name === "TokenExpiredError") {
+    statusCode = 401;
+    message = "Token expired. Please log in again.";
+  }
+
+  if (statusCode >= 500) {
+    logger.error(`${message} - ${req.originalUrl} - ${req.method} - ${req.ip}`, err);
+  } else {
+    logger.warn(`${message} - ${req.originalUrl} - ${req.method} - ${req.ip}`);
+  }
+
+  res.status(statusCode).json({
     success: false,
-    error: err.message,
+    error: message,
   });
 });
 
