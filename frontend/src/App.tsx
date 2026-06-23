@@ -34,6 +34,7 @@ import TVSeries from "./pages/TVSeries";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Profile from "./pages/Profile";
+import ScrollToTop from "./components/ScrollToTop";
 
 function App() {
   const dispatch = useDispatch<AppDispatch>();
@@ -44,8 +45,6 @@ function App() {
   const upcomingMovies = useSelector(selectUpcoming);
   const loading = useSelector(selectHomeLoading);
   const backgroundImageUrl = useSelector(selectBackgroundImageUrl);
-  const searchResults = useSelector(selectSearchResults);
-  const [showSearch, setShowSearch] = useState(false);
 
   useEffect(() => {
     dispatch(fetchHomeData());
@@ -54,16 +53,14 @@ function App() {
   const handleSearch = (query: string) => {
     if (query.trim() === "") {
       dispatch(clearSearch());
-      setShowSearch(false);
       return;
     }
-
     dispatch(searchMoviesThunk(query));
-    setShowSearch(true);
   };
 
   return (
     <BrowserRouter>
+      <ScrollToTop />
       <div
         className="Container"
         style={{
@@ -86,51 +83,37 @@ function App() {
                 <Navbar onSearch={handleSearch} />
                 <div className="main-content">
                   {loading ? (
-                    <div className="loading">
-                      <div className="spinner"></div>
-                      <div className="loading-text">Loading content...</div>
-                      <div className="attribution">
-                        This data is provided by OMDB API (Open Movie Database).
-                        Loading movie and TV show information...
+                    <div className="min-h-screen bg-[#0a0a0a] flex flex-col items-center justify-center gap-4">
+                      <div className="animate-pulse space-y-4 w-64">
+                        <div className="h-6 bg-[#1a1a1a] rounded w-3/4 mx-auto" />
+                        <div className="h-4 bg-[#1a1a1a] rounded w-full" />
+                        <div className="h-4 bg-[#1a1a1a] rounded w-5/6" />
                       </div>
+                      <p className="text-[#9ca3af] text-sm uppercase tracking-[0.15em]">
+                        Loading…
+                      </p>
                     </div>
                   ) : (
                     <>
-                      {showSearch ? (
-                        <div className="search-results">
-                          <h2>Search Results</h2>
-                          <div className="search-grid">
-                            {searchResults.map((movie) => (
-                              <div key={movie.imdbID} className="search-item">
-                                <img src={movie.Poster} alt={movie.Title} />
-                                <h3>{movie.Title}</h3>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      ) : (
-                        <>
-                          <HeroSection movies={trendingMovies.slice(0, 5)} />
-                          <div className="content-wrapper">
-                            <ContentRow
-                              title="Trending Now"
-                              movies={trendingMovies}
-                            />
-                            <ContentRow
-                              title="Popular on CineGlance"
-                              movies={popularMovies}
-                            />
-                            <ContentRow
-                              title="Top Rated"
-                              movies={topRatedMovies}
-                            />
-                            <ContentRow
-                              title="Coming Soon"
-                              movies={upcomingMovies}
-                            />
-                          </div>
-                        </>
-                      )}
+                      <HeroSection movies={trendingMovies.slice(0, 5)} />
+                      <div className="bg-gradient-to-b from-transparent via-[#0a0a0a]/80 to-[#0a0a0a] -mt-32 relative z-10">
+                        <ContentRow
+                          title="Trending Now"
+                          movies={trendingMovies}
+                        />
+                        <ContentRow
+                          title="Popular"
+                          movies={popularMovies}
+                        />
+                        <ContentRow
+                          title="Top Rated"
+                          movies={topRatedMovies}
+                        />
+                        <ContentRow
+                          title="Coming Soon"
+                          movies={upcomingMovies}
+                        />
+                      </div>
                     </>
                   )}
                 </div>
@@ -148,22 +131,68 @@ function App() {
               </>
             }
           />
-          <Route path="/genre" element={<Genre />} />
-          <Route path="/country" element={<Country />} />
-          <Route path="/movies" element={<Movies />} />
-          <Route path="/tv-series" element={<TVSeries />} />
-
+          <Route
+            path="/genre"
+            element={
+              <>
+                <Navbar onSearch={handleSearch} />
+                <Genre />
+              </>
+            }
+          />
+          <Route
+            path="/country"
+            element={
+              <>
+                <Navbar onSearch={handleSearch} />
+                <Country />
+              </>
+            }
+          />
+          <Route
+            path="/movies"
+            element={
+              <>
+                <Navbar onSearch={handleSearch} />
+                <Movies />
+              </>
+            }
+          />
+          <Route
+            path="/tv-series"
+            element={
+              <>
+                <Navbar onSearch={handleSearch} />
+                <TVSeries />
+              </>
+            }
+          />
           <Route
             path="/login"
-            element={isAuthenticated ? <Navigate to="/" /> : <Login />}
+            element={
+              <>
+                <Navbar onSearch={handleSearch} />
+                {isAuthenticated ? <Navigate to="/" /> : <Login />}
+              </>
+            }
           />
           <Route
             path="/register"
-            element={isAuthenticated ? <Navigate to="/" /> : <Register />}
+            element={
+              <>
+                <Navbar onSearch={handleSearch} />
+                {isAuthenticated ? <Navigate to="/" /> : <Register />}
+              </>
+            }
           />
           <Route
             path="/profile"
-            element={isAuthenticated ? <Profile /> : <Navigate to="/login" />}
+            element={
+              <>
+                <Navbar onSearch={handleSearch} />
+                {isAuthenticated ? <Profile /> : <Navigate to="/login" />}
+              </>
+            }
           />
         </Routes>
       </div>

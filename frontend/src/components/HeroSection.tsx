@@ -1,7 +1,6 @@
-import React, { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import type { MovieEntity } from "../types";
-import "./HeroSection.css";
 
 interface HeroSectionProps {
   movies: MovieEntity[];
@@ -11,144 +10,131 @@ const HeroSection = ({ movies }: HeroSectionProps) => {
   const navigate = useNavigate();
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
-  const [isTransitioning, setIsTransitioning] = useState(false);
 
   const handleNext = useCallback(() => {
-    if (isTransitioning) return;
-    setIsTransitioning(true);
-    setCurrentIndex((prevIndex) => (prevIndex + 1) % movies.length);
+    setCurrentIndex((prev) => (prev + 1) % movies.length);
     setIsAutoPlaying(false);
-    setTimeout(() => setIsTransitioning(false), 500);
-  }, [isTransitioning, movies.length]);
+  }, [movies.length]);
 
   useEffect(() => {
-    let interval: ReturnType<typeof setInterval>;
-    if (isAutoPlaying) {
-      interval = setInterval(() => {
-        handleNext();
-      }, 5000);
-    }
+    if (!isAutoPlaying) return;
+    const interval = setInterval(handleNext, 6000);
     return () => clearInterval(interval);
   }, [isAutoPlaying, handleNext]);
 
   const handlePrev = () => {
-    if (isTransitioning) return;
-    setIsTransitioning(true);
-    setCurrentIndex(
-      (prevIndex) => (prevIndex - 1 + movies.length) % movies.length
-    );
+    setCurrentIndex((prev) => (prev - 1 + movies.length) % movies.length);
     setIsAutoPlaying(false);
-    setTimeout(() => setIsTransitioning(false), 500);
-  };
-
-  const handleDotClick = (index: number) => {
-    if (isTransitioning || index === currentIndex) return;
-    setIsTransitioning(true);
-    setCurrentIndex(index);
-    setIsAutoPlaying(false);
-    setTimeout(() => setIsTransitioning(false), 500);
   };
 
   if (!movies || movies.length === 0) return null;
 
-  const currentMovie = movies[currentIndex];
-  const releaseYear = currentMovie.Year;
-  const rating = currentMovie.imdbRating || "N/A";
+  const current = movies[currentIndex];
 
   return (
-    <div className="hero-section">
-      <div className="hero-content">
-        <div className="hero-badge">Featured</div>
-        <h1 className="hero-title">{currentMovie.Title}</h1>
-        <div className="hero-meta">
-          <span className="hero-year">{releaseYear}</span>
-          <span className="hero-rating">★ {rating}</span>
-          <span className="hero-duration">{currentMovie.Runtime || "N/A"}</span>
-        </div>
-        <p className="hero-description">{currentMovie.Plot}</p>
-        <div className="hero-genres">
-          {currentMovie.Genre &&
-            currentMovie.Genre.split(", ").map((genre, idx) => (
-              <span key={idx} className="hero-genre">
-                {genre}
-              </span>
-            ))}
-        </div>
-        <div className="hero-buttons">
-          <button
-            className="play-button"
-            onClick={() => navigate(`/movie/${currentMovie.imdbID}`)}
-          >
-            <span className="play-icon">▶</span>
-            Play Now
-          </button>
-          <button
-            className="more-info-button"
-            onClick={() => navigate(`/movie/${currentMovie.imdbID}`)}
-          >
-            <span className="info-icon">ℹ</span>
-            More Info
-          </button>
-        </div>
-      </div>
-      <div className="hero-overlay"></div>
-      <div className="hero-backgrounds">
-        {movies.map((movie, index) => (
+    <div className="relative h-[90vh] min-h-[600px] w-full overflow-hidden">
+      {movies.map((movie, index) => (
+        <div
+          key={movie.imdbID}
+          className={`absolute inset-0 transition-all duration-700 ease-in-out ${
+            index === currentIndex
+              ? "opacity-100 scale-100"
+              : "opacity-0 scale-105"
+          }`}
+        >
           <img
-            key={movie.imdbID}
-            className={`hero-background ${
-              index === currentIndex ? "active" : ""
-            }`}
             src={movie.Poster}
             alt={movie.Title}
+            className="w-full h-full object-cover"
+            loading="lazy"
           />
-        ))}
+        </div>
+      ))}
+
+      <div className="absolute inset-0 bg-gradient-to-r from-[#0a0a0a] via-[#0a0a0a]/70 to-transparent" />
+      <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-transparent to-transparent" />
+
+      <div className="relative z-10 h-full max-w-screen-2xl mx-auto px-6 lg:px-12 flex items-center">
+        <div className="max-w-2xl animate-fade-in" key={current.imdbID}>
+          <span className="text-[#9ca3af] text-xs uppercase tracking-[0.2em] font-medium">
+            Featured
+          </span>
+          <h1 className="font-serif text-4xl sm:text-5xl lg:text-7xl text-[#f5f5f1] mt-4 leading-tight">
+            {current.Title}
+          </h1>
+
+          <div className="flex items-center gap-4 mt-4 text-sm text-[#9ca3af] uppercase tracking-[0.1em]">
+            <span>{current.Year}</span>
+            <span className="w-px h-3 bg-[#2a2a2a]" />
+            <span>{current.Runtime || "N/A"}</span>
+            <span className="w-px h-3 bg-[#2a2a2a]" />
+            <span className="text-[#f5c518]">★ {current.imdbRating || "N/A"}</span>
+          </div>
+
+          {current.Plot && (
+            <p className="mt-6 text-[#9ca3af] text-base leading-relaxed line-clamp-3 max-w-xl font-light">
+              {current.Plot}
+            </p>
+          )}
+
+          {current.Genre && (
+            <div className="flex flex-wrap gap-2 mt-6">
+              {current.Genre.split(", ").map((genre) => (
+                <span
+                  key={genre}
+                  className="text-xs uppercase tracking-[0.15em] text-[#9ca3af] border border-[#2a2a2a] px-3 py-1"
+                >
+                  {genre}
+                </span>
+              ))}
+            </div>
+          )}
+
+          <button
+            onClick={() => navigate(`/movie/${current.imdbID}`)}
+            className="mt-8 inline-flex items-center gap-2 text-sm uppercase tracking-[0.2em] text-[#f5f5f1] border-b border-[#c9774d] pb-0.5 hover:text-[#c9774d] transition-colors group"
+          >
+            View Details
+            <span className="inline-block transition-transform group-hover:translate-x-1">→</span>
+          </button>
+        </div>
       </div>
 
-      <div className="hero-navigation">
-        <button className="nav-button prev" onClick={handlePrev}>
+      <div className="absolute bottom-12 left-1/2 -translate-x-1/2 z-20 flex items-center gap-6">
+        <button
+          onClick={handlePrev}
+          className="text-[#9ca3af] hover:text-[#f5f5f1] transition-colors text-lg"
+          aria-label="Previous"
+        >
           ‹
         </button>
-        <div className="nav-dots">
+        <div className="flex items-center gap-3">
           {movies.map((_, index) => (
             <button
               key={index}
-              className={`nav-dot ${index === currentIndex ? "active" : ""}`}
-              onClick={() => handleDotClick(index)}
+              onClick={() => {
+                setCurrentIndex(index);
+                setIsAutoPlaying(false);
+              }}
+              className={`transition-all duration-300 ${
+                index === currentIndex
+                  ? "w-8 h-0.5 bg-[#c9774d]"
+                  : "w-4 h-0.5 bg-[#2a2a2a] hover:bg-[#9ca3af]"
+              }`}
+              aria-label={`Go to slide ${index + 1}`}
             />
           ))}
         </div>
-        <button className="nav-button next" onClick={handleNext}>
+        <button
+          onClick={handleNext}
+          className="text-[#9ca3af] hover:text-[#f5f5f1] transition-colors text-lg"
+          aria-label="Next"
+        >
           ›
         </button>
       </div>
     </div>
   );
-};
-
-const getGenreName = (genreId: number): string => {
-  const genres: Record<number, string> = {
-    28: "Action",
-    12: "Adventure",
-    16: "Animation",
-    35: "Comedy",
-    80: "Crime",
-    99: "Documentary",
-    18: "Drama",
-    10751: "Family",
-    14: "Fantasy",
-    36: "History",
-    27: "Horror",
-    10402: "Music",
-    9648: "Mystery",
-    10749: "Romance",
-    878: "Science Fiction",
-    10770: "TV Movie",
-    53: "Thriller",
-    10752: "War",
-    37: "Western",
-  };
-  return genres[genreId] || "";
 };
 
 export default HeroSection;

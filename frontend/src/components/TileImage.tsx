@@ -1,5 +1,3 @@
-import React from "react";
-
 interface CardProps {
   poster: string;
   title: string;
@@ -7,8 +5,14 @@ interface CardProps {
 
 function Card({ poster, title }: CardProps) {
   return (
-    <div>
-      <img className="scale-40" src={poster} title={title} />
+    <div className="border border-[#2a2a2a] overflow-hidden hover:border-[#c9774d] transition-colors">
+      <img
+        src={poster}
+        title={title}
+        alt={title}
+        className="w-full h-full object-cover"
+        loading="lazy"
+      />
     </div>
   );
 }
