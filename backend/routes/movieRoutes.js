@@ -196,7 +196,12 @@ router.get("/detail/:id", async (req, res) => {
 
     const data = await tryTMDB(
       async () => await tmdb.getMovieDetails(id),
-      async () => await omdbRequest({ i: id, plot: "full" })
+      async () => {
+        if (!id.startsWith("tt")) {
+          return { Response: "False", Error: "Movie not found" };
+        }
+        return await omdbRequest({ i: id, plot: "full" });
+      }
     );
     res.json(data);
   } catch (error) {
@@ -213,7 +218,12 @@ router.get("/similar/:id", async (req, res) => {
         const movies = await tmdb.getSimilarMovies(id);
         return formatAsSearchResponse(movies.map(tmdb.tmdbToMovieEntity));
       },
-      async () => ({ Search: [], totalResults: "0", Response: "True" })
+      async () => {
+        if (!id.startsWith("tt")) {
+          return { Search: [], totalResults: "0", Response: "True" };
+        }
+        return await omdbRequest({ s: id, type: "movie", page: 1 });
+      }
     );
     res.json(data);
   } catch (error) {

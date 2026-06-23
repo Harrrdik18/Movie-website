@@ -142,18 +142,23 @@ exports.discoverTVShows = async (params = {}) => {
   return { results: data.results || [], totalResults: data.total_results || 0 };
 };
 
-exports.getMovieDetails = async (imdbId) => {
-  const findData = await tmdbRequest(`/find/${imdbId}`, {
-    external_source: "imdb_id",
-  });
+exports.getMovieDetails = async (id) => {
+  let tmdbMovieId;
 
-  const tmdbResults = findData.movie_results;
-  if (!tmdbResults || tmdbResults.length === 0) {
-    throw new Error("Movie not found on TMDB");
+  if (id.startsWith("tmdb-")) {
+    tmdbMovieId = id.replace("tmdb-", "");
+  } else {
+    const findData = await tmdbRequest(`/find/${id}`, {
+      external_source: "imdb_id",
+    });
+    const tmdbResults = findData.movie_results;
+    if (!tmdbResults || tmdbResults.length === 0) {
+      throw new Error("Movie not found on TMDB");
+    }
+    tmdbMovieId = tmdbResults[0].id;
   }
 
-  const tmdbId = tmdbResults[0].id;
-  const detailData = await tmdbRequest(`/movie/${tmdbId}`, {
+  const detailData = await tmdbRequest(`/movie/${tmdbMovieId}`, {
     append_to_response: "credits",
   });
 
@@ -163,16 +168,23 @@ exports.getMovieDetails = async (imdbId) => {
   return entity;
 };
 
-exports.getSimilarMovies = async (imdbId) => {
+exports.getSimilarMovies = async (id) => {
   try {
-    const findData = await tmdbRequest(`/find/${imdbId}`, {
-      external_source: "imdb_id",
-    });
-    const tmdbResults = findData.movie_results;
-    if (!tmdbResults || tmdbResults.length === 0) return [];
+    let tmdbMovieId;
+
+    if (id.startsWith("tmdb-")) {
+      tmdbMovieId = id.replace("tmdb-", "");
+    } else {
+      const findData = await tmdbRequest(`/find/${id}`, {
+        external_source: "imdb_id",
+      });
+      const tmdbResults = findData.movie_results;
+      if (!tmdbResults || tmdbResults.length === 0) return [];
+      tmdbMovieId = tmdbResults[0].id;
+    }
 
     const similarData = await tmdbRequest(
-      `/movie/${tmdbResults[0].id}/recommendations`
+      `/movie/${tmdbMovieId}/recommendations`
     );
     return (similarData.results || []).slice(0, 12);
   } catch {
