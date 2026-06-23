@@ -35,14 +35,22 @@ const HeroSection = ({ movies }: HeroSectionProps) => {
   return (
     <div className="relative h-[90vh] min-h-[600px] w-full overflow-hidden">
       {movies.map((movie, index) => (
-        <div
-          key={movie.imdbID}
-          className={`absolute inset-0 transition-opacity duration-700 ease-in-out ${
-            index === currentIndex ? "opacity-100 z-10" : "opacity-0 z-0"
-          }`}
-        >
-          <GradientBackground genre={movie.Genre} />
-        </div>
+          <div
+            key={movie.imdbID}
+            className={`absolute inset-0 transition-opacity duration-700 ease-in-out ${
+              index === currentIndex ? "opacity-100 z-10" : "opacity-0 z-0"
+            }`}
+          >
+            {movie.Backdrop ? (
+              <img
+                src={movie.Backdrop}
+                alt=""
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <GradientBackground genre={movie.Genre} />
+            )}
+          </div>
       ))}
 
       <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-transparent to-transparent z-20" />

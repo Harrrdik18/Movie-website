@@ -69,7 +69,15 @@ const Movie = () => {
   return (
     <div className="min-h-screen bg-[#0a0a0a] pt-16 lg:pt-20">
       <div className="relative min-h-[70vh] flex items-end overflow-hidden">
-        <GradientBackground genre={movieDetails.Genre} />
+        {movieDetails.Backdrop ? (
+          <img
+            src={movieDetails.Backdrop}
+            alt=""
+            className="absolute inset-0 w-full h-full object-cover"
+          />
+        ) : (
+          <GradientBackground genre={movieDetails.Genre} />
+        )}
         <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-[#0a0a0a]/60 to-60% z-10" />
 
         <div className="relative z-20 w-full max-w-screen-2xl mx-auto px-6 lg:px-12 pb-16 lg:pb-24">
@@ -153,7 +161,41 @@ const Movie = () => {
               )}
             </div>
 
-            {movieDetails.Actors && (
+            {movieDetails.Cast && movieDetails.Cast.length > 0 ? (
+              <div className="mt-12 lg:mt-16">
+                <h2 className="font-serif text-2xl text-[#f5f5f1] mb-6 flex items-center gap-4">
+                  Cast
+                  <span className="flex-1 h-px bg-gradient-to-r from-[#2a2a2a] to-transparent" />
+                </h2>
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                  {movieDetails.Cast.map((member) => (
+                    <div key={member.name} className="text-center">
+                      {member.profilePath ? (
+                        <div className="border border-[#2a2a2a] overflow-hidden mb-2 mx-auto w-20 h-20 rounded-full">
+                          <img
+                            src={member.profilePath}
+                            alt={member.name}
+                            className="w-full h-full object-cover"
+                            loading="lazy"
+                            onError={(e) => {
+                              (e.target as HTMLImageElement).style.display = "none";
+                            }}
+                          />
+                        </div>
+                      ) : (
+                        <div className="border border-[#2a2a2a] mb-2 mx-auto w-20 h-20 rounded-full flex items-center justify-center bg-[#141414]">
+                          <span className="text-[#9ca3af] text-lg font-serif">
+                            {member.name.charAt(0)}
+                          </span>
+                        </div>
+                      )}
+                      <p className="text-[#f5f5f1] text-xs leading-tight">{member.name}</p>
+                      <p className="text-[#9ca3af] text-xs leading-tight mt-0.5 truncate">{member.character}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ) : movieDetails.Actors && (
               <div className="mt-12 lg:mt-16">
                 <h2 className="font-serif text-2xl text-[#f5f5f1] mb-6 flex items-center gap-4">
                   Cast

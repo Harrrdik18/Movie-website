@@ -36,9 +36,11 @@ app.use(
 
 const userRoutes = require("./routes/userRoutes");
 const omdbRoutes = require("./routes/omdbRoutes");
+const movieRoutes = require("./routes/movieRoutes");
 
 app.use("/api/v1/users", userRoutes);
 app.use("/api/v1/omdb", omdbRoutes);
+app.use("/api/v1/movies", movieRoutes);
 
 app.get("/", (req, res) => {
   res.send("CineGlance API running");

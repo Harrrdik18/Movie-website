@@ -2,6 +2,12 @@
 
 // Combined entity type used for createEntityAdapter
 // Has all fields from search results + detail as optional
+export interface CastMember {
+  name: string;
+  character: string;
+  profilePath: string | null;
+}
+
 export interface MovieEntity {
   imdbID: string;
   Title: string;
@@ -27,6 +33,8 @@ export interface MovieEntity {
   BoxOffice?: string;
   Production?: string;
   Website?: string;
+  Backdrop?: string;
+  Cast?: CastMember[];
 }
 
 export interface OMDBMovieSearchResult {

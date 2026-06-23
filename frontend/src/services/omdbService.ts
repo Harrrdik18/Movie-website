@@ -3,9 +3,15 @@ import type {
   OMDBMovieDetail,
   OMDBSearchResponse,
   Genre,
+  MovieEntity,
 } from "../types";
 
-const API_BASE_URL = "https://movie-website-zr27.onrender.com/api/v1/omdb";
+const API_BASE_URL = import.meta.env.DEV
+  ? "http://localhost:5000/api/v1/movies"
+  : "https://movie-website-zr27.onrender.com/api/v1/movies";
+const OMDB_FALLBACK = import.meta.env.DEV
+  ? "http://localhost:5000/api/v1/omdb"
+  : "https://movie-website-zr27.onrender.com/api/v1/omdb";
 
 axios.defaults.withCredentials = true;
 
@@ -19,175 +25,109 @@ const apiRequest = async <T>(
     });
     return response.data;
   } catch (error) {
-    console.error(`OMDB API Error: ${(error as Error).message}`);
+    console.error(`API Error: ${(error as Error).message}`);
     throw error;
   }
 };
 
+export const getTrendingMovies = async (): Promise<OMDBSearchResponse> => {
+  return await apiRequest<OMDBSearchResponse>("/trending");
+};
+
+export const getPopularMovies = async (): Promise<OMDBSearchResponse> => {
+  return await apiRequest<OMDBSearchResponse>("/popular");
+};
+
+export const getTopRatedMovies = async (): Promise<OMDBSearchResponse> => {
+  return await apiRequest<OMDBSearchResponse>("/top-rated");
+};
+
+export const getUpcomingMovies = async (): Promise<OMDBSearchResponse> => {
+  return await apiRequest<OMDBSearchResponse>("/upcoming");
+};
+
 export const searchMovies = async (
   query: string,
-  type: string = "",
-  year: string = "",
-  page: number = 1
+  _type: string = "",
+  _year: string = "",
+  _page: number = 1
 ): Promise<OMDBSearchResponse> => {
-  const params: Record<string, string | number> = { s: query, page };
-  if (type) params.type = type;
-  if (year) params.y = year;
-  return await apiRequest<OMDBSearchResponse>("/search", params);
+  return await apiRequest<OMDBSearchResponse>("/search", { q: query, page: _page });
 };
 
 export const getMovieDetails = async (
   imdbId: string = "",
-  title: string = "",
-  type: string = "",
-  year: string = ""
-): Promise<OMDBMovieDetail> => {
-  const params: Record<string, string | number> = { plot: "full" };
-  if (imdbId) params.i = imdbId;
-  if (title) params.t = title;
-  if (type) params.type = type;
-  if (year) params.y = year;
-  return await apiRequest<OMDBMovieDetail>("/details", params);
+  _title: string = "",
+  _type: string = "",
+  _year: string = ""
+): Promise<OMDBMovieDetail | MovieEntity> => {
+  return await apiRequest<OMDBMovieDetail | MovieEntity>(`/detail/${imdbId}`);
 };
 
-export const getPopularMovies = async (): Promise<OMDBSearchResponse> => {
-  return await apiRequest<OMDBSearchResponse>("/popular/movies");
-};
-
-export const getPopularSeries = async (): Promise<OMDBSearchResponse> => {
-  return await apiRequest<OMDBSearchResponse>("/popular/series");
+export const getSimilarMovies = async (
+  _id: string
+): Promise<OMDBSearchResponse> => {
+  return await apiRequest<OMDBSearchResponse>(`/similar/${_id}`);
 };
 
 export const getMoviesByYear = async (
   year: string | number,
   page: number = 1
 ): Promise<OMDBSearchResponse> => {
-  return await apiRequest<OMDBSearchResponse>(`/movies/year/${year}`, {
-    page,
-  });
+  return await apiRequest<OMDBSearchResponse>("/discover", { year, page });
 };
 
 export const getMoviesByGenre = async (
   genre: string,
   page: number = 1
 ): Promise<OMDBSearchResponse> => {
-  return await apiRequest<OMDBSearchResponse>(`/movies/genre/${genre}`, {
-    page,
-  });
+  return await apiRequest<OMDBSearchResponse>("/discover", { genre, page });
 };
 
 export const getRecentMovies = async (
   page: number = 1
 ): Promise<OMDBSearchResponse> => {
-  return await apiRequest<OMDBSearchResponse>("/movies/recent", { page });
+  return await apiRequest<OMDBSearchResponse>("/discover", { page });
 };
-
-export const getTrendingMovies =
-  async (): Promise<OMDBSearchResponse> => {
-    return await getPopularMovies();
-  };
-
-export const getTopRatedMovies =
-  async (): Promise<OMDBSearchResponse> => {
-    return await getPopularMovies();
-  };
-
-export const getUpcomingMovies =
-  async (): Promise<OMDBSearchResponse> => {
-    return await getRecentMovies();
-  };
 
 export const discoverMovies = async (
   params: { genre?: string; year?: string; page?: number } = {}
 ): Promise<OMDBSearchResponse> => {
-  const { genre, year, page = 1 } = params;
-
-  if (genre) {
-    return await getMoviesByGenre(genre, page);
-  }
-
-  if (year) {
-    return await getMoviesByYear(year, page);
-  }
-
-  return await getPopularMovies();
+  return await apiRequest<OMDBSearchResponse>("/discover", params as Record<string, string | number>);
 };
 
 export const discoverTVShows = async (
   params: { year?: string; page?: number } = {}
 ): Promise<OMDBSearchResponse> => {
-  const { year, page = 1 } = params;
-
-  if (year) {
-    return await searchMovies("series", "series", year, page);
-  }
-
-  return await getPopularSeries();
-};
-
-const countryNames: Record<string, string> = {
-  US: "American",
-  GB: "British",
-  FR: "French",
-  DE: "German",
-  IT: "Italian",
-  ES: "Spanish",
-  JP: "Japanese",
-  KR: "Korean",
-  IN: "Indian",
-  CN: "Chinese",
+  return await apiRequest<OMDBSearchResponse>("/tv", params as Record<string, string | number>);
 };
 
 export const getMoviesByCountry = async (
   countryCode: string,
-  page: number = 1
+  _page: number = 1
 ): Promise<OMDBSearchResponse> => {
-  const countryName = countryNames[countryCode] || countryCode;
-  return await searchMovies(countryName, "movie", "", page);
+  return await apiRequest<OMDBSearchResponse>(`/country/${countryCode}`);
+};
+
+export const getGenres = async (): Promise<{
+  genres: Genre[];
+}> => {
+  return await apiRequest<{ genres: Genre[] }>("/genres");
+};
+
+export const getPopularSeries = async (): Promise<OMDBSearchResponse> => {
+  return await apiRequest<OMDBSearchResponse>("/tv");
 };
 
 export const getTVShowsByYear = async (
   year: string | number,
   page: number = 1
 ): Promise<OMDBSearchResponse> => {
-  return await searchMovies("series", "series", String(year), page);
+  return await apiRequest<OMDBSearchResponse>("/tv", { year, page });
 };
 
 export const getMovieCredits = async (
   _id: string
 ): Promise<{ cast: unknown[]; crew: unknown[] }> => {
   return { cast: [], crew: [] };
-};
-
-export const getSimilarMovies = async (
-  _id: string
-): Promise<OMDBSearchResponse> => {
-  return { Search: [], totalResults: "0", Response: "True" };
-};
-
-export const getGenres = async (): Promise<{
-  genres: Genre[];
-}> => {
-  return {
-    genres: [
-      { id: 1, name: "Action" },
-      { id: 2, name: "Adventure" },
-      { id: 3, name: "Animation" },
-      { id: 4, name: "Comedy" },
-      { id: 5, name: "Crime" },
-      { id: 6, name: "Documentary" },
-      { id: 7, name: "Drama" },
-      { id: 8, name: "Family" },
-      { id: 9, name: "Fantasy" },
-      { id: 10, name: "History" },
-      { id: 11, name: "Horror" },
-      { id: 12, name: "Music" },
-      { id: 13, name: "Mystery" },
-      { id: 14, name: "Romance" },
-      { id: 15, name: "Science Fiction" },
-      { id: 16, name: "Thriller" },
-      { id: 17, name: "War" },
-      { id: 18, name: "Western" },
-    ],
-  };
 };
