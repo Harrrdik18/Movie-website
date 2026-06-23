@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import type { AppDispatch } from "./redux/store";
 import { selectIsAuthenticated } from "./redux/selectors/userSelectors";
@@ -8,8 +8,6 @@ import {
   selectTopRated,
   selectUpcoming,
   selectHomeLoading,
-  selectBackgroundImageUrl,
-  selectSearchResults,
 } from "./redux/selectors/movieSelectors";
 import {
   fetchHomeData,
@@ -44,7 +42,6 @@ function App() {
   const topRatedMovies = useSelector(selectTopRated);
   const upcomingMovies = useSelector(selectUpcoming);
   const loading = useSelector(selectHomeLoading);
-  const backgroundImageUrl = useSelector(selectBackgroundImageUrl);
 
   useEffect(() => {
     dispatch(fetchHomeData());
@@ -64,15 +61,10 @@ function App() {
       <div
         className="Container"
         style={{
-          backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.3), rgb(0, 0, 0)), url(${backgroundImageUrl})`,
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-          backgroundRepeat: "no-repeat",
-          backgroundAttachment: "fixed",
+          background: "radial-gradient(ellipse at 50% 0%, #141414 0%, #0a0a0a 70%)",
           minHeight: "100vh",
           position: "relative",
           overflow: "hidden",
-          backgroundColor: "#000",
         }}
       >
         <Routes>

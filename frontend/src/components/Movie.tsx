@@ -9,6 +9,7 @@ import {
   selectDetailLoading,
   selectDetailError,
 } from "../redux/selectors/movieSelectors";
+import GradientBackground from "./GradientBackground";
 
 const Movie = () => {
   const { id } = useParams<{ id: string }>();
@@ -67,25 +68,14 @@ const Movie = () => {
 
   return (
     <div className="min-h-screen bg-[#0a0a0a] pt-16 lg:pt-20">
-      <div className="relative min-h-[70vh] flex items-end">
-        <div className="absolute inset-0">
-          <img
-            src={movieDetails.Poster}
-            alt={movieDetails.Title}
-            className="w-full h-full object-cover"
-            onError={(e) => {
-              (e.target as HTMLImageElement).src =
-                "https://via.placeholder.com/1200x800?text=No+Poster";
-            }}
-          />
-        </div>
-        <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-[#0a0a0a]/60 to-transparent" />
-        <div className="absolute inset-0 bg-gradient-to-r from-[#0a0a0a]/80 via-transparent to-transparent" />
+      <div className="relative min-h-[70vh] flex items-end overflow-hidden">
+        <GradientBackground genre={movieDetails.Genre} />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-[#0a0a0a]/60 to-60% z-10" />
 
-        <div className="relative z-10 w-full max-w-screen-2xl mx-auto px-6 lg:px-12 pb-16 lg:pb-24">
-          <div className="flex flex-col lg:flex-row gap-8 lg:gap-12 items-start">
-            <div className="hidden lg:block flex-shrink-0 w-72">
-              <div className="border border-[#2a2a2a] overflow-hidden">
+        <div className="relative z-20 w-full max-w-screen-2xl mx-auto px-6 lg:px-12 pb-16 lg:pb-24">
+          <div className="flex flex-col lg:flex-row gap-8 lg:gap-16 items-end lg:items-center">
+            <div className="hidden lg:block flex-shrink-0 w-64">
+              <div className="border border-[#2a2a2a] overflow-hidden shadow-2xl">
                 <img
                   src={movieDetails.Poster}
                   alt={movieDetails.Title}
@@ -169,23 +159,14 @@ const Movie = () => {
                   Cast
                   <span className="flex-1 h-px bg-gradient-to-r from-[#2a2a2a] to-transparent" />
                 </h2>
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-                  {movieDetails.Actors.split(", ").map((actor) => (
-                    <div
-                      key={actor}
-                      className="border border-[#2a2a2a] p-3 text-center hover:border-[#c9774d] transition-colors"
-                    >
-                      <div className="w-full aspect-[2/3] bg-[#1a1a1a] flex items-center justify-center mb-2">
-                        <span className="text-[#9ca3af] text-xs uppercase tracking-[0.15em]">
-                          Photo
-                        </span>
-                      </div>
-                      <span className="text-[#f5f5f1] text-xs uppercase tracking-[0.1em]">
-                        {actor}
-                      </span>
-                    </div>
+                <p className="text-[#9ca3af] text-sm leading-loose">
+                  {movieDetails.Actors.split(", ").map((actor, i, arr) => (
+                    <span key={actor}>
+                      <span className="text-[#f5f5f1]">{actor}</span>
+                      {i < arr.length - 1 && <span className="text-[#2a2a2a] mx-2">·</span>}
+                    </span>
                   ))}
-                </div>
+                </p>
               </div>
             )}
           </div>

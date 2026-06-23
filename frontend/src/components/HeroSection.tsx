@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import type { MovieEntity } from "../types";
+import GradientBackground from "./GradientBackground";
 
 interface HeroSectionProps {
   movies: MovieEntity[];
@@ -36,71 +37,80 @@ const HeroSection = ({ movies }: HeroSectionProps) => {
       {movies.map((movie, index) => (
         <div
           key={movie.imdbID}
-          className={`absolute inset-0 transition-all duration-700 ease-in-out ${
-            index === currentIndex
-              ? "opacity-100 scale-100"
-              : "opacity-0 scale-105"
+          className={`absolute inset-0 transition-opacity duration-700 ease-in-out ${
+            index === currentIndex ? "opacity-100 z-10" : "opacity-0 z-0"
           }`}
         >
-          <img
-            src={movie.Poster}
-            alt={movie.Title}
-            className="w-full h-full object-cover"
-            loading="lazy"
-          />
+          <GradientBackground genre={movie.Genre} />
         </div>
       ))}
 
-      <div className="absolute inset-0 bg-gradient-to-r from-[#0a0a0a] via-[#0a0a0a]/70 to-transparent" />
-      <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-transparent to-transparent" />
+      <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-transparent to-transparent z-20" />
 
-      <div className="relative z-10 h-full max-w-screen-2xl mx-auto px-6 lg:px-12 flex items-center">
-        <div className="max-w-2xl animate-fade-in" key={current.imdbID}>
-          <span className="text-[#9ca3af] text-xs uppercase tracking-[0.2em] font-medium">
-            Featured
-          </span>
-          <h1 className="font-serif text-4xl sm:text-5xl lg:text-7xl text-[#f5f5f1] mt-4 leading-tight">
-            {current.Title}
-          </h1>
+      <div
+        className="relative z-20 h-full max-w-screen-2xl mx-auto px-6 lg:px-12 flex items-center"
+        key={current.imdbID}
+      >
+        <div className="w-full flex flex-col lg:flex-row lg:items-center gap-8 lg:gap-16 animate-fade-in">
+          <div className="flex-1 max-w-2xl lg:order-1">
+            <span className="text-[#9ca3af] text-xs uppercase tracking-[0.2em] font-medium">
+              Featured
+            </span>
+            <h1 className="font-serif text-4xl sm:text-5xl lg:text-7xl text-[#f5f5f1] mt-4 leading-tight">
+              {current.Title}
+            </h1>
 
-          <div className="flex items-center gap-4 mt-4 text-sm text-[#9ca3af] uppercase tracking-[0.1em]">
-            <span>{current.Year}</span>
-            <span className="w-px h-3 bg-[#2a2a2a]" />
-            <span>{current.Runtime || "N/A"}</span>
-            <span className="w-px h-3 bg-[#2a2a2a]" />
-            <span className="text-[#f5c518]">★ {current.imdbRating || "N/A"}</span>
+            <div className="flex items-center gap-4 mt-4 text-sm text-[#9ca3af] uppercase tracking-[0.1em]">
+              <span>{current.Year}</span>
+              <span className="w-px h-3 bg-[#2a2a2a]" />
+              <span>{current.Runtime || "N/A"}</span>
+              <span className="w-px h-3 bg-[#2a2a2a]" />
+              <span className="text-[#f5c518]">★ {current.imdbRating || "N/A"}</span>
+            </div>
+
+            {current.Plot && (
+              <p className="mt-6 text-[#9ca3af] text-base leading-relaxed line-clamp-3 max-w-xl font-light">
+                {current.Plot}
+              </p>
+            )}
+
+            {current.Genre && (
+              <div className="flex flex-wrap gap-2 mt-6">
+                {current.Genre.split(", ").map((genre) => (
+                  <span
+                    key={genre}
+                    className="text-xs uppercase tracking-[0.15em] text-[#9ca3af] border border-[#2a2a2a] px-3 py-1"
+                  >
+                    {genre}
+                  </span>
+                ))}
+              </div>
+            )}
+
+            <button
+              onClick={() => navigate(`/movie/${current.imdbID}`)}
+              className="mt-8 inline-flex items-center gap-2 text-sm uppercase tracking-[0.2em] text-[#f5f5f1] border-b border-[#c9774d] pb-0.5 hover:text-[#c9774d] transition-colors group"
+            >
+              View Details
+              <span className="inline-block transition-transform group-hover:translate-x-1">→</span>
+            </button>
           </div>
 
-          {current.Plot && (
-            <p className="mt-6 text-[#9ca3af] text-base leading-relaxed line-clamp-3 max-w-xl font-light">
-              {current.Plot}
-            </p>
-          )}
-
-          {current.Genre && (
-            <div className="flex flex-wrap gap-2 mt-6">
-              {current.Genre.split(", ").map((genre) => (
-                <span
-                  key={genre}
-                  className="text-xs uppercase tracking-[0.15em] text-[#9ca3af] border border-[#2a2a2a] px-3 py-1"
-                >
-                  {genre}
-                </span>
-              ))}
+          <div className="lg:order-2 flex-shrink-0">
+            <div className="relative w-48 sm:w-56 lg:w-72">
+              <div className="border border-[#2a2a2a] overflow-hidden shadow-2xl">
+                <img
+                  src={current.Poster}
+                  alt={current.Title}
+                  className="w-full aspect-[2/3] object-cover"
+                />
+              </div>
             </div>
-          )}
-
-          <button
-            onClick={() => navigate(`/movie/${current.imdbID}`)}
-            className="mt-8 inline-flex items-center gap-2 text-sm uppercase tracking-[0.2em] text-[#f5f5f1] border-b border-[#c9774d] pb-0.5 hover:text-[#c9774d] transition-colors group"
-          >
-            View Details
-            <span className="inline-block transition-transform group-hover:translate-x-1">→</span>
-          </button>
+          </div>
         </div>
       </div>
 
-      <div className="absolute bottom-12 left-1/2 -translate-x-1/2 z-20 flex items-center gap-6">
+      <div className="absolute bottom-12 left-1/2 -translate-x-1/2 z-30 flex items-center gap-6">
         <button
           onClick={handlePrev}
           className="text-[#9ca3af] hover:text-[#f5f5f1] transition-colors text-lg"
