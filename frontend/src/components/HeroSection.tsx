@@ -59,8 +59,8 @@ const HeroSection = ({ movies }: HeroSectionProps) => {
         className="relative z-20 h-full max-w-screen-2xl mx-auto px-6 lg:px-12 flex items-center"
         key={current.imdbID}
       >
-        <div className="w-full flex flex-col lg:flex-row lg:items-center gap-8 lg:gap-16 animate-fade-in">
-          <div className="flex-1 max-w-2xl lg:order-1">
+        <div className="w-full animate-fade-in">
+          <div className="max-w-2xl">
             <span className="text-[#9ca3af] text-xs uppercase tracking-[0.2em] font-medium">
               Featured
             </span>
@@ -102,18 +102,6 @@ const HeroSection = ({ movies }: HeroSectionProps) => {
               View Details
               <span className="inline-block transition-transform group-hover:translate-x-1">→</span>
             </button>
-          </div>
-
-          <div className="lg:order-2 flex-shrink-0">
-            <div className="relative w-48 sm:w-56 lg:w-72">
-              <div className="border border-[#2a2a2a] overflow-hidden shadow-2xl">
-                <img
-                  src={current.Poster}
-                  alt={current.Title}
-                  className="w-full aspect-[2/3] object-cover"
-                />
-              </div>
-            </div>
           </div>
         </div>
       </div>
