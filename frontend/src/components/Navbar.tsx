@@ -54,7 +54,7 @@ const Navbar = ({ onSearch }: NavbarProps) => {
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
         scrolled
           ? "bg-[#0a0a0a]/90 backdrop-blur-md shadow-[0_1px_0_#2a2a2a]"
-          : "bg-transparent"
+          : "bg-[#0a0a0a]/30 backdrop-blur-sm"
       }`}
     >
       <div className="max-w-screen-2xl mx-auto px-6 lg:px-12 flex items-center justify-between h-16 lg:h-20">

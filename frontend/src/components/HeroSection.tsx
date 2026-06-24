@@ -53,7 +53,7 @@ const HeroSection = ({ movies }: HeroSectionProps) => {
           </div>
       ))}
 
-      <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-transparent to-transparent z-20" />
+      <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-[#0a0a0a]/70 to-[#0a0a0a]/30 z-20" />
 
       <div
         className="relative z-20 h-full max-w-screen-2xl mx-auto px-6 lg:px-12 flex items-center"

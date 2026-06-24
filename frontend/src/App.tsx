@@ -33,6 +33,7 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Profile from "./pages/Profile";
 import ScrollToTop from "./components/ScrollToTop";
+import ChatAssistant from "./components/ChatAssistant";
 
 function App() {
   const dispatch = useDispatch<AppDispatch>();
@@ -187,6 +188,7 @@ function App() {
             }
           />
         </Routes>
+        <ChatAssistant />
       </div>
     </BrowserRouter>
   );

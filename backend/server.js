@@ -3,7 +3,7 @@ require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
-const morgan = require("morgan");
+// const morgan = require("morgan");
 const { connectRedis } = require("./config/redis");
 const ErrorHandler = require("./utils/errorHandler");
 const logger = require("./utils/logger");
@@ -37,15 +37,17 @@ app.use(
   }),
 );
 
-app.use(morgan("dev", { stream: { write: (msg) => logger.http(msg.trim()) } }));
+// app.use(morgan("dev", { stream: { write: (msg) => logger.http(msg.trim()) } }));
 
 const userRoutes = require("./routes/userRoutes");
 const omdbRoutes = require("./routes/omdbRoutes");
 const movieRoutes = require("./routes/movieRoutes");
+const chatRoutes = require("./routes/chatRoutes");
 
 app.use("/api/v1/users", userRoutes);
 app.use("/api/v1/omdb", omdbRoutes);
 app.use("/api/v1/movies", movieRoutes);
+app.use("/api/v1/chat", chatRoutes);
 
 app.get("/", (req, res) => {
   res.send("CineGlance API running");
