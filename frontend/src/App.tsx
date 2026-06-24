@@ -25,8 +25,7 @@ import Navbar from "./components/Navbar";
 import Movie from "./components/Movie";
 import HeroSection from "./components/HeroSection";
 import ContentRow from "./components/ContentRow";
-import Genre from "./pages/Genre";
-import Country from "./pages/Country";
+
 import Movies from "./pages/Movies";
 import TVSeries from "./pages/TVSeries";
 import Login from "./pages/Login";
@@ -121,24 +120,6 @@ function App() {
                 <div className="main-content">
                   <Movie />
                 </div>
-              </>
-            }
-          />
-          <Route
-            path="/genre"
-            element={
-              <>
-                <Navbar onSearch={handleSearch} />
-                <Genre />
-              </>
-            }
-          />
-          <Route
-            path="/country"
-            element={
-              <>
-                <Navbar onSearch={handleSearch} />
-                <Country />
               </>
             }
           />

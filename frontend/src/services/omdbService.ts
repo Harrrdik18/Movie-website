@@ -91,13 +91,13 @@ export const getRecentMovies = async (
 };
 
 export const discoverMovies = async (
-  params: { genre?: string; year?: string; page?: number } = {}
+  params: { genre?: string; year?: string; page?: number; country?: string } = {}
 ): Promise<OMDBSearchResponse> => {
   return await apiRequest<OMDBSearchResponse>("/discover", params as Record<string, string | number>);
 };
 
 export const discoverTVShows = async (
-  params: { year?: string; page?: number } = {}
+  params: { genre?: string; year?: string; page?: number; country?: string } = {}
 ): Promise<OMDBSearchResponse> => {
   return await apiRequest<OMDBSearchResponse>("/tv", params as Record<string, string | number>);
 };

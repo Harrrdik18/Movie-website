@@ -118,7 +118,7 @@ router.get("/search", async (req, res) => {
 
 router.get("/discover", async (req, res) => {
   try {
-    const { genre, year, page = 1 } = req.query;
+    const { genre, year, page = 1, country } = req.query;
 
     const data = await tryTMDB(
       async () => {
@@ -126,6 +126,7 @@ router.get("/discover", async (req, res) => {
           genre,
           year,
           page: Number(page),
+          country,
         });
         const transformed = results.map(tmdb.tmdbToMovieEntity);
         return {
@@ -141,6 +142,14 @@ router.get("/discover", async (req, res) => {
           const term = terms[Math.floor(Math.random() * terms.length)];
           return await omdbRequest({ s: term, type: "movie", y: year, page });
         }
+        if (country) {
+          const nameMap = {
+            US: "American", GB: "British", IN: "Indian", JP: "Japanese",
+            KR: "Korean", FR: "French", DE: "German", IT: "Italian",
+            ES: "Spanish", BR: "Brazilian",
+          };
+          return await omdbRequest({ s: nameMap[country] || country, type: "movie", page: 1 });
+        }
         return await omdbRequest({ s: "movie", type: "movie", page });
       }
     );
@@ -152,13 +161,15 @@ router.get("/discover", async (req, res) => {
 
 router.get("/tv", async (req, res) => {
   try {
-    const { year, page = 1 } = req.query;
+    const { year, page = 1, genre, country } = req.query;
 
     const data = await tryTMDB(
       async () => {
         const { results } = await tmdb.discoverTVShows({
           year,
           page: Number(page),
+          genre,
+          country,
         });
         const transformed = results.map((s) => {
           const poster = s.poster_path
@@ -180,7 +191,16 @@ router.get("/tv", async (req, res) => {
         };
       },
       async () => {
+        if (genre) return await omdbRequest({ s: genre, type: "series", page });
         if (year) return await omdbRequest({ s: "series", type: "series", y: year, page });
+        if (country) {
+          const nameMap = {
+            US: "American", GB: "British", IN: "Indian", JP: "Japanese",
+            KR: "Korean", FR: "French", DE: "German", IT: "Italian",
+            ES: "Spanish", BR: "Brazilian",
+          };
+          return await omdbRequest({ s: nameMap[country] || country, type: "series", page: 1 });
+        }
         return await omdbRequest({ s: "series", type: "series", page });
       }
     );

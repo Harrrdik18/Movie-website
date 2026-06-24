@@ -20,8 +20,6 @@ const Navbar = ({ onSearch }: NavbarProps) => {
     { to: "/", label: "Home" },
     { to: "/movies", label: "Movies" },
     { to: "/tv-series", label: "TV Series" },
-    { to: "/genre", label: "Genre" },
-    { to: "/country", label: "Country" },
   ];
 
   useEffect(() => {

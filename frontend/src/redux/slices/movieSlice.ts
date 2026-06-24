@@ -62,7 +62,7 @@ export const fetchTVShows = createAsyncThunk(
   "movies/fetchTVShows",
   async (params: Record<string, unknown>, { rejectWithValue }) => {
     try {
-      const response = await discoverTVShows(params as { year?: string; page?: number });
+      const response = await discoverTVShows(params as { genre?: string; year?: string; page?: number; country?: string });
       return {
         shows: response.Search || [],
         totalResults: parseInt(response.totalResults) || 0,

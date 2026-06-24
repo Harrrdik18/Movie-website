@@ -116,6 +116,11 @@ exports.searchMovies = async (query, page = 1) => {
   return { results: data.results || [], totalResults: data.total_results || 0 };
 };
 
+const COUNTRY_LANG_MAP = {
+  US: "en", GB: "en", IN: "hi", JP: "ja", KR: "ko",
+  FR: "fr", DE: "de", IT: "it", ES: "es", BR: "pt",
+};
+
 exports.discoverMovies = async (params = {}) => {
   const queryParams = {};
   if (params.genre) {
@@ -126,6 +131,10 @@ exports.discoverMovies = async (params = {}) => {
   }
   if (params.year) queryParams.year = params.year;
   if (params.page) queryParams.page = params.page;
+  if (params.country) {
+    const lang = COUNTRY_LANG_MAP[params.country];
+    if (lang) queryParams.with_original_language = lang;
+  }
 
   const data = await tmdbRequest("/discover/movie", queryParams);
   return { results: data.results || [], totalResults: data.total_results || 0 };
@@ -133,10 +142,20 @@ exports.discoverMovies = async (params = {}) => {
 
 exports.discoverTVShows = async (params = {}) => {
   const queryParams = {};
+  if (params.genre) {
+    const genreEntry = Object.entries(GENRE_MAP).find(
+      ([, name]) => name.toLowerCase() === params.genre.toLowerCase()
+    );
+    if (genreEntry) queryParams.with_genres = genreEntry[0];
+  }
   if (params.year) {
     queryParams.first_air_date_year = params.year;
   }
   if (params.page) queryParams.page = params.page;
+  if (params.country) {
+    const lang = COUNTRY_LANG_MAP[params.country];
+    if (lang) queryParams.with_original_language = lang;
+  }
 
   const data = await tmdbRequest("/discover/tv", queryParams);
   return { results: data.results || [], totalResults: data.total_results || 0 };

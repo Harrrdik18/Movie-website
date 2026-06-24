@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import type { AppDispatch } from "../redux/store";
@@ -8,11 +8,33 @@ import {
   selectTVLoading,
   selectTVTotalPages,
 } from "../redux/selectors/movieSelectors";
+import { getGenres } from "../services/omdbService";
+import type { Genre } from "../types";
+
+const countries = [
+  { code: "", name: "All Countries" },
+  { code: "US", name: "United States" },
+  { code: "GB", name: "United Kingdom" },
+  { code: "IN", name: "India" },
+  { code: "JP", name: "Japan" },
+  { code: "KR", name: "South Korea" },
+  { code: "FR", name: "France" },
+  { code: "DE", name: "Germany" },
+  { code: "IT", name: "Italy" },
+  { code: "ES", name: "Spain" },
+  { code: "BR", name: "Brazil" },
+];
 
 const TVSeries = () => {
   const [page, setPage] = useState(1);
   const [sortBy, setSortBy] = useState("popularity.desc");
   const [year, setYear] = useState("");
+  const [genre, setGenre] = useState("");
+  const [country, setCountry] = useState("");
+  const [genreOpen, setGenreOpen] = useState(false);
+  const [genreList, setGenreList] = useState<Genre[]>([]);
+  const [visibleGenreCount, setVisibleGenreCount] = useState(10);
+  const genreDropdownRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
   const dispatch = useDispatch<AppDispatch>();
   const shows = useSelector(selectTVShows);
@@ -24,10 +46,26 @@ const TVSeries = () => {
   );
 
   useEffect(() => {
+    getGenres().then((data) => setGenreList(data.genres));
+  }, []);
+
+  useEffect(() => {
+    const handleClick = (e: MouseEvent) => {
+      if (genreDropdownRef.current && !genreDropdownRef.current.contains(e.target as Node)) {
+        setGenreOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, []);
+
+  useEffect(() => {
     const params: Record<string, unknown> = {};
     if (year) params.year = year;
+    if (genre) params.genre = genre;
+    if (country) params.country = country;
     dispatch(fetchTVShows(params));
-  }, [page, sortBy, year, dispatch]);
+  }, [page, sortBy, year, genre, country, dispatch]);
 
   const handleSortChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setSortBy(e.target.value);
@@ -38,6 +76,22 @@ const TVSeries = () => {
     setYear(e.target.value);
     setPage(1);
   };
+
+  const lastGenreRef = useCallback(
+    (node: HTMLButtonElement | null) => {
+      if (!node) return;
+      const observer = new IntersectionObserver(
+        (entries) => {
+          if (entries[0].isIntersecting) {
+            setVisibleGenreCount((prev) => Math.min(prev + 5, genreList.length));
+          }
+        },
+        { threshold: 0.1 }
+      );
+      observer.observe(node);
+    },
+    [genreList.length]
+  );
 
   const getPageNumbers = () => {
     const pages: (number | string)[] = [];
@@ -90,6 +144,50 @@ const TVSeries = () => {
               <option value="" className="bg-[#141414]">All Years</option>
               {years.map((y) => (
                 <option key={y} value={y} className="bg-[#141414]">{y}</option>
+              ))}
+            </select>
+          </div>
+          <div className="flex items-center gap-3 relative" ref={genreDropdownRef}>
+            <label className="text-xs uppercase tracking-[0.15em] text-[#9ca3af]">Genre</label>
+            <button
+              onClick={() => setGenreOpen(!genreOpen)}
+              className="bg-transparent border border-[#2a2a2a] text-sm px-3 py-2 focus:outline-none focus:border-[#c9774d] transition-colors cursor-pointer min-w-[130px] text-left flex items-center justify-between gap-2"
+            >
+              <span className={genre ? "text-[#f5f5f1]" : "text-[#6b6b6b]"}>
+                {genre || "All Genres"}
+              </span>
+              <span className={`text-[#9ca3af] text-[10px] transition-transform ${genreOpen ? "rotate-180" : ""}`}>▼</span>
+            </button>
+            {genreOpen && (
+              <div className="absolute top-full left-0 mt-1 w-full bg-[#141414] border border-[#2a2a2a] shadow-xl z-50 max-h-60 overflow-y-auto">
+                <button
+                  onClick={() => { setGenre(""); setGenreOpen(false); setPage(1); }}
+                  className={`w-full text-left px-3 py-2 text-sm transition-colors ${!genre ? "text-[#c9774d] bg-[#1a1a1a]" : "text-[#9ca3af] hover:text-[#f5f5f1] hover:bg-[#1a1a1a]"}`}
+                >
+                  All Genres
+                </button>
+                {genreList.slice(0, visibleGenreCount).map((g, i) => (
+                  <button
+                    key={g.id}
+                    ref={i === Math.min(visibleGenreCount, genreList.length) - 1 ? lastGenreRef : undefined}
+                    onClick={() => { setGenre(g.name); setGenreOpen(false); setPage(1); }}
+                    className={`w-full text-left px-3 py-2 text-sm transition-colors ${genre === g.name ? "text-[#c9774d] bg-[#1a1a1a]" : "text-[#9ca3af] hover:text-[#f5f5f1] hover:bg-[#1a1a1a]"}`}
+                  >
+                    {g.name}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+          <div className="flex items-center gap-3">
+            <label className="text-xs uppercase tracking-[0.15em] text-[#9ca3af]">Country</label>
+            <select
+              value={country}
+              onChange={(e) => { setCountry(e.target.value); setPage(1); }}
+              className="bg-transparent border border-[#2a2a2a] text-[#f5f5f1] text-sm px-3 py-2 focus:outline-none focus:border-[#c9774d] transition-colors cursor-pointer"
+            >
+              {countries.map((c) => (
+                <option key={c.code} value={c.code} className="bg-[#141414]">{c.name}</option>
               ))}
             </select>
           </div>
