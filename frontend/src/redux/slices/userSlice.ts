@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import * as authService from "../../services/authService";
-import type { User } from "../../types";
+import type { User, FavoriteItem, WatchlistItem } from "../../types";
 
 export const loginUser = createAsyncThunk<
   User,
@@ -90,6 +90,66 @@ export const logoutUser = createAsyncThunk<
   }
 });
 
+export const addToFavorites = createAsyncThunk<
+  FavoriteItem[],
+  { movieId: string; title: string; poster: string; type: string },
+  { rejectValue: string }
+>("user/addToFavorites", async (movieData, { rejectWithValue }) => {
+  try {
+    const data = await authService.addToFavorites(movieData);
+    return data.favorites;
+  } catch (error) {
+    return rejectWithValue(
+      (error as { error?: string }).error || "Failed to add to favorites"
+    );
+  }
+});
+
+export const removeFromFavorites = createAsyncThunk<
+  FavoriteItem[],
+  string,
+  { rejectValue: string }
+>("user/removeFromFavorites", async (movieId, { rejectWithValue }) => {
+  try {
+    const data = await authService.removeFromFavorites(movieId);
+    return data.favorites;
+  } catch (error) {
+    return rejectWithValue(
+      (error as { error?: string }).error || "Failed to remove from favorites"
+    );
+  }
+});
+
+export const addToWatchlist = createAsyncThunk<
+  WatchlistItem[],
+  { movieId: string; title: string; poster: string; type: string },
+  { rejectValue: string }
+>("user/addToWatchlist", async (movieData, { rejectWithValue }) => {
+  try {
+    const data = await authService.addToWatchlist(movieData);
+    return data.watchlist;
+  } catch (error) {
+    return rejectWithValue(
+      (error as { error?: string }).error || "Failed to add to watchlist"
+    );
+  }
+});
+
+export const removeFromWatchlist = createAsyncThunk<
+  WatchlistItem[],
+  string,
+  { rejectValue: string }
+>("user/removeFromWatchlist", async (movieId, { rejectWithValue }) => {
+  try {
+    const data = await authService.removeFromWatchlist(movieId);
+    return data.watchlist;
+  } catch (error) {
+    return rejectWithValue(
+      (error as { error?: string }).error || "Failed to remove from watchlist"
+    );
+  }
+});
+
 interface UserState {
   user: User | null;
   isAuthenticated: boolean;
@@ -173,6 +233,34 @@ const userSlice = createSlice({
         state.error = null;
         state.success = null;
         localStorage.removeItem("user");
+      })
+      .addMatcher(addToFavorites.fulfilled.match, (state, action) => {
+        state.loading = false;
+        if (state.user) {
+          state.user.favorites = action.payload;
+          localStorage.setItem("user", JSON.stringify(state.user));
+        }
+      })
+      .addMatcher(removeFromFavorites.fulfilled.match, (state, action) => {
+        state.loading = false;
+        if (state.user) {
+          state.user.favorites = action.payload;
+          localStorage.setItem("user", JSON.stringify(state.user));
+        }
+      })
+      .addMatcher(addToWatchlist.fulfilled.match, (state, action) => {
+        state.loading = false;
+        if (state.user) {
+          state.user.watchlist = action.payload;
+          localStorage.setItem("user", JSON.stringify(state.user));
+        }
+      })
+      .addMatcher(removeFromWatchlist.fulfilled.match, (state, action) => {
+        state.loading = false;
+        if (state.user) {
+          state.user.watchlist = action.payload;
+          localStorage.setItem("user", JSON.stringify(state.user));
+        }
       });
   },
 });

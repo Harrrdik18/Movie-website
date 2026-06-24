@@ -1,20 +1,16 @@
-import { useState, useRef, useEffect } from "react";
-import { Link, NavLink, useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { Link, NavLink } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { selectIsAuthenticated } from "../redux/selectors/userSelectors";
 
 interface NavbarProps {
-  onSearch: (query: string) => void;
+  onSearchOpen: () => void;
 }
 
-const Navbar = ({ onSearch }: NavbarProps) => {
+const Navbar = ({ onSearchOpen }: NavbarProps) => {
   const isLoggedIn = useSelector(selectIsAuthenticated);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [searchOpen, setSearchOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
   const [scrolled, setScrolled] = useState(false);
-  const searchRef = useRef<HTMLInputElement>(null);
-  const navigate = useNavigate();
 
   const links = [
     { to: "/", label: "Home" },
@@ -27,25 +23,6 @@ const Navbar = ({ onSearch }: NavbarProps) => {
     window.addEventListener("scroll", onScroll);
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
-
-  useEffect(() => {
-    if (searchOpen && searchRef.current) searchRef.current.focus();
-  }, [searchOpen]);
-
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const query = e.target.value;
-    setSearchQuery(query);
-    onSearch(query);
-  };
-
-  const handleSearchSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (searchQuery.trim()) {
-      navigate(`/?search=${encodeURIComponent(searchQuery)}`);
-      onSearch(searchQuery);
-      setSearchOpen(false);
-    }
-  };
 
   return (
     <nav
@@ -85,36 +62,12 @@ const Navbar = ({ onSearch }: NavbarProps) => {
         </div>
 
         <div className="flex items-center gap-4">
-          {searchOpen ? (
-            <form onSubmit={handleSearchSubmit} className="flex items-center">
-              <input
-                ref={searchRef}
-                type="text"
-                value={searchQuery}
-                onChange={handleSearchChange}
-                placeholder="Search movies..."
-                className="bg-transparent border-b border-[#2a2a2a] text-[#f5f5f1] text-sm py-1 px-2 w-48 focus:outline-none focus:border-[#c9774d] transition-colors placeholder:text-[#6b6b6b]"
-              />
-              <button
-                type="button"
-                onClick={() => {
-                  setSearchOpen(false);
-                  setSearchQuery("");
-                  onSearch("");
-                }}
-                className="ml-2 text-[#9ca3af] hover:text-[#f5f5f1] transition-colors text-sm"
-              >
-                Esc
-              </button>
-            </form>
-          ) : (
-            <button
-              onClick={() => setSearchOpen(true)}
-              className="text-[#9ca3af] hover:text-[#f5f5f1] transition-colors text-sm uppercase tracking-[0.15em]"
-            >
-              Search
-            </button>
-          )}
+          <button
+            onClick={onSearchOpen}
+            className="text-[#9ca3af] hover:text-[#f5f5f1] transition-colors text-sm uppercase tracking-[0.15em]"
+          >
+            Search
+          </button>
 
           <div className="hidden lg:flex items-center gap-4">
             <div className="w-px h-4 bg-[#2a2a2a]" />

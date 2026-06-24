@@ -1,7 +1,9 @@
 import axios from "axios";
 import type { User, FavoriteItem, WatchlistItem } from "../types";
 
-const API_URL = "https://movie-website-zr27.onrender.com/api/v1/users";
+const API_URL = import.meta.env.DEV
+  ? "http://localhost:5000/api/v1/users"
+  : "https://movie-website-zr27.onrender.com/api/v1/users";
 
 axios.defaults.withCredentials = true;
 

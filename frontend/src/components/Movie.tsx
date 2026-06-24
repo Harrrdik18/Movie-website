@@ -10,6 +10,16 @@ import {
   selectDetailError,
 } from "../redux/selectors/movieSelectors";
 import GradientBackground from "./GradientBackground";
+import {
+  selectIsAuthenticated,
+  selectUser,
+} from "../redux/selectors/userSelectors";
+import {
+  addToFavorites,
+  removeFromFavorites,
+  addToWatchlist,
+  removeFromWatchlist,
+} from "../redux/slices/userSlice";
 
 const Movie = () => {
   const { id } = useParams<{ id: string }>();
@@ -19,6 +29,47 @@ const Movie = () => {
   const similarMovies = useSelector(selectSimilarMovies);
   const loading = useSelector(selectDetailLoading);
   const error = useSelector(selectDetailError);
+  const isAuthenticated = useSelector(selectIsAuthenticated);
+  const user = useSelector(selectUser);
+
+  const isFavorite = user?.favorites?.some(
+    (f) => f.movieId === movieDetails?.imdbID
+  );
+  const isInWatchlist = user?.watchlist?.some(
+    (w) => w.movieId === movieDetails?.imdbID
+  );
+
+  const handleToggleFavorite = () => {
+    if (!movieDetails) return;
+    if (isFavorite) {
+      dispatch(removeFromFavorites(movieDetails.imdbID));
+    } else {
+      dispatch(
+        addToFavorites({
+          movieId: movieDetails.imdbID,
+          title: movieDetails.Title,
+          poster: movieDetails.Poster,
+          type: movieDetails.Type,
+        })
+      );
+    }
+  };
+
+  const handleToggleWatchlist = () => {
+    if (!movieDetails) return;
+    if (isInWatchlist) {
+      dispatch(removeFromWatchlist(movieDetails.imdbID));
+    } else {
+      dispatch(
+        addToWatchlist({
+          movieId: movieDetails.imdbID,
+          title: movieDetails.Title,
+          poster: movieDetails.Poster,
+          type: movieDetails.Type,
+        })
+      );
+    }
+  };
 
   useEffect(() => {
     if (id) dispatch(fetchMovieDetail(id));
@@ -126,6 +177,31 @@ const Movie = () => {
                 <p className="mt-6 text-[#9ca3af] text-base leading-relaxed font-light italic border-l-2 border-[#c9774d] pl-4">
                   {movieDetails.Plot}
                 </p>
+              )}
+
+              {isAuthenticated && (
+                <div className="flex flex-wrap gap-3 mt-8">
+                  <button
+                    onClick={handleToggleFavorite}
+                    className={`text-xs uppercase tracking-[0.15em] px-5 py-2.5 border transition-all ${
+                      isFavorite
+                        ? "border-[#c9774d] text-[#c9774d] bg-[#c9774d]/10"
+                        : "border-[#2a2a2a] text-[#9ca3af] hover:border-[#c9774d] hover:text-[#c9774d]"
+                    }`}
+                  >
+                    {isFavorite ? "♥ In Favorites" : "♡ Add to Favorites"}
+                  </button>
+                  <button
+                    onClick={handleToggleWatchlist}
+                    className={`text-xs uppercase tracking-[0.15em] px-5 py-2.5 border transition-all ${
+                      isInWatchlist
+                        ? "border-[#c9774d] text-[#c9774d] bg-[#c9774d]/10"
+                        : "border-[#2a2a2a] text-[#9ca3af] hover:border-[#c9774d] hover:text-[#c9774d]"
+                    }`}
+                  >
+                    {isInWatchlist ? "◆ In Watchlist" : "◇ Add to Watchlist"}
+                  </button>
+                </div>
               )}
             </div>
           </div>

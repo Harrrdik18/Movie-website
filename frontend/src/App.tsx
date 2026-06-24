@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import type { AppDispatch } from "./redux/store";
 import { selectIsAuthenticated } from "./redux/selectors/userSelectors";
@@ -8,6 +8,8 @@ import {
   selectTopRated,
   selectUpcoming,
   selectHomeLoading,
+  selectSearchResults,
+  selectSearchLoading,
 } from "./redux/selectors/movieSelectors";
 import {
   fetchHomeData,
@@ -33,6 +35,7 @@ import Register from "./pages/Register";
 import Profile from "./pages/Profile";
 import ScrollToTop from "./components/ScrollToTop";
 import ChatAssistant from "./components/ChatAssistant";
+import SearchOverlay from "./components/SearchOverlay";
 
 function App() {
   const dispatch = useDispatch<AppDispatch>();
@@ -47,12 +50,42 @@ function App() {
     dispatch(fetchHomeData());
   }, [dispatch]);
 
-  const handleSearch = (query: string) => {
-    if (query.trim() === "") {
-      dispatch(clearSearch());
-      return;
+  const searchResults = useSelector(selectSearchResults);
+  const searchLoading = useSelector(selectSearchLoading);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const searchTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current);
+    };
+  }, []);
+
+  const handleSearchOpen = () => {
+    setSearchOpen(true);
+  };
+
+  const handleSearchClose = () => {
+    setSearchOpen(false);
+    setSearchQuery("");
+    dispatch(clearSearch());
+    if (searchTimeoutRef.current) {
+      clearTimeout(searchTimeoutRef.current);
+      searchTimeoutRef.current = null;
     }
-    dispatch(searchMoviesThunk(query));
+  };
+
+  const handleSearchQueryChange = (query: string) => {
+    setSearchQuery(query);
+    if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current);
+    if (query.trim()) {
+      searchTimeoutRef.current = setTimeout(() => {
+        dispatch(searchMoviesThunk(query));
+      }, 300);
+    } else {
+      dispatch(clearSearch());
+    }
   };
 
   return (
@@ -72,7 +105,7 @@ function App() {
             path="/"
             element={
               <>
-                <Navbar onSearch={handleSearch} />
+                <Navbar onSearchOpen={handleSearchOpen} />
                 <div className="main-content">
                   {loading ? (
                     <div className="min-h-screen bg-[#0a0a0a] flex flex-col items-center justify-center gap-4">
@@ -116,7 +149,7 @@ function App() {
             path="/movie/:id"
             element={
               <>
-                <Navbar onSearch={handleSearch} />
+                <Navbar onSearchOpen={handleSearchOpen} />
                 <div className="main-content">
                   <Movie />
                 </div>
@@ -127,7 +160,7 @@ function App() {
             path="/movies"
             element={
               <>
-                <Navbar onSearch={handleSearch} />
+                <Navbar onSearchOpen={handleSearchOpen} />
                 <Movies />
               </>
             }
@@ -136,7 +169,7 @@ function App() {
             path="/tv-series"
             element={
               <>
-                <Navbar onSearch={handleSearch} />
+                <Navbar onSearchOpen={handleSearchOpen} />
                 <TVSeries />
               </>
             }
@@ -145,7 +178,7 @@ function App() {
             path="/login"
             element={
               <>
-                <Navbar onSearch={handleSearch} />
+                <Navbar onSearchOpen={handleSearchOpen} />
                 {isAuthenticated ? <Navigate to="/" /> : <Login />}
               </>
             }
@@ -154,7 +187,7 @@ function App() {
             path="/register"
             element={
               <>
-                <Navbar onSearch={handleSearch} />
+                <Navbar onSearchOpen={handleSearchOpen} />
                 {isAuthenticated ? <Navigate to="/" /> : <Register />}
               </>
             }
@@ -163,13 +196,21 @@ function App() {
             path="/profile"
             element={
               <>
-                <Navbar onSearch={handleSearch} />
+                <Navbar onSearchOpen={handleSearchOpen} />
                 {isAuthenticated ? <Profile /> : <Navigate to="/login" />}
               </>
             }
           />
         </Routes>
         <ChatAssistant />
+        {searchOpen && (
+          <SearchOverlay
+            query={searchQuery}
+            results={searchResults}
+            onClose={handleSearchClose}
+            onQueryChange={handleSearchQueryChange}
+          />
+        )}
       </div>
     </BrowserRouter>
   );

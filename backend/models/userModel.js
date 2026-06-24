@@ -37,7 +37,7 @@ const userSchema = new mongoose.Schema(
     favorites: [
       {
         movieId: {
-          type: Number,
+          type: String,
           required: true,
         },
         title: {
@@ -59,7 +59,7 @@ const userSchema = new mongoose.Schema(
     watchlist: [
       {
         movieId: {
-          type: Number,
+          type: String,
           required: true,
         },
         title: {

@@ -10,6 +10,8 @@ import {
   clearError,
   clearSuccess,
   clearAuth,
+  removeFromFavorites,
+  removeFromWatchlist,
 } from "../redux/slices/userSlice";
 import {
   selectUser,
@@ -232,11 +234,17 @@ const Profile = () => {
                   {user?.favorites?.length ? (
                     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
                       {user.favorites.map((movie) => (
-                        <div key={movie.movieId} className="group cursor-pointer" onClick={() => navigate(`/movie/${movie.movieId}`)}>
-                          <div className="border border-[#2a2a2a] overflow-hidden transition-all group-hover:border-[#c9774d]">
+                        <div key={movie.movieId} className="group cursor-pointer">
+                          <div onClick={() => navigate(`/movie/${movie.movieId}`)} className="border border-[#2a2a2a] overflow-hidden transition-all group-hover:border-[#c9774d]">
                             <img src={movie.poster} alt={movie.title} className="w-full aspect-[2/3] object-cover" />
                           </div>
                           <h3 className="text-sm text-[#f5f5f1] mt-2 line-clamp-1 font-serif">{movie.title}</h3>
+                          <button
+                            onClick={() => dispatch(removeFromFavorites(movie.movieId))}
+                            className="text-xs uppercase tracking-[0.1em] text-[#9ca3af] hover:text-[#c9774d] mt-1 transition-colors"
+                          >
+                            Remove
+                          </button>
                         </div>
                       ))}
                     </div>
@@ -252,11 +260,17 @@ const Profile = () => {
                   {user?.watchlist?.length ? (
                     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
                       {user.watchlist.map((movie) => (
-                        <div key={movie.movieId} className="group cursor-pointer" onClick={() => navigate(`/movie/${movie.movieId}`)}>
-                          <div className="border border-[#2a2a2a] overflow-hidden transition-all group-hover:border-[#c9774d]">
+                        <div key={movie.movieId} className="group cursor-pointer">
+                          <div onClick={() => navigate(`/movie/${movie.movieId}`)} className="border border-[#2a2a2a] overflow-hidden transition-all group-hover:border-[#c9774d]">
                             <img src={movie.poster} alt={movie.title} className="w-full aspect-[2/3] object-cover" />
                           </div>
                           <h3 className="text-sm text-[#f5f5f1] mt-2 line-clamp-1 font-serif">{movie.title}</h3>
+                          <button
+                            onClick={() => dispatch(removeFromWatchlist(movie.movieId))}
+                            className="text-xs uppercase tracking-[0.1em] text-[#9ca3af] hover:text-[#c9774d] mt-1 transition-colors"
+                          >
+                            Remove
+                          </button>
                         </div>
                       ))}
                     </div>
