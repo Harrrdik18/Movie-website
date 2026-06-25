@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import type { AppDispatch } from "../redux/store";
 import { sendMessageThunk, clearChat } from "../redux/slices/chatSlice";
@@ -21,6 +21,8 @@ const ChatAssistant = () => {
 
   const [open, setOpen] = useState(false);
   const [input, setInput] = useState("");
+  const [showReminder, setShowReminder] = useState(false);
+  const reminderTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const inputRef = useRef<HTMLInputElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
@@ -44,6 +46,31 @@ const ChatAssistant = () => {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+
+  const handleDismissReminder = useCallback(() => {
+    setShowReminder(false);
+    if (reminderTimerRef.current) {
+      clearTimeout(reminderTimerRef.current);
+      reminderTimerRef.current = null;
+    }
+    localStorage.setItem("chat_reminder_seen", "true");
+  }, []);
+
+  useEffect(() => {
+    if (localStorage.getItem("chat_reminder_seen")) return;
+    const id = setTimeout(() => setShowReminder(true), 4000);
+    reminderTimerRef.current = id;
+    return () => {
+      clearTimeout(id);
+      reminderTimerRef.current = null;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (open && showReminder) {
+      handleDismissReminder();
+    }
+  }, [open, showReminder, handleDismissReminder]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -171,9 +198,43 @@ const ChatAssistant = () => {
         </div>
       )}
 
+      {showReminder && !open && (
+        <div className="fixed bottom-24 right-6 z-50 animate-slide-up">
+          <div className="relative border border-[#2a2a2a] bg-[#141414] px-4 py-3 shadow-lg min-w-[240px]">
+            <div className="flex flex-col gap-2">
+              <p className="text-[#f5f5f1] text-sm leading-snug">
+                🎬 Need a recommendation?
+                <br />
+                <span className="text-[#9ca3af] text-xs">Try our Movie Assistant</span>
+              </p>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => {
+                    handleDismissReminder();
+                    setOpen(true);
+                  }}
+                  className="text-xs uppercase tracking-[0.1em] text-[#c9774d] hover:text-[#d98a5e] transition-colors"
+                >
+                  Try Now
+                </button>
+                <button
+                  onClick={handleDismissReminder}
+                  className="ml-auto text-[#6b6b6b] hover:text-[#f5f5f1] transition-colors text-sm leading-none"
+                >
+                  ✕
+                </button>
+              </div>
+            </div>
+            <div className="absolute -bottom-[6px] right-6 w-3 h-3 bg-[#141414] border-r border-b border-[#2a2a2a] rotate-45" />
+          </div>
+        </div>
+      )}
+
       <button
         onClick={() => setOpen(!open)}
-        className="chat-toggle fixed bottom-6 right-6 z-50 w-12 h-12 bg-[#c9774d] hover:bg-[#d98a5e] text-white rounded-full shadow-lg flex items-center justify-center transition-colors text-lg"
+        className={`chat-toggle fixed bottom-6 right-6 z-50 w-12 h-12 bg-[#c9774d] hover:bg-[#d98a5e] text-white rounded-full shadow-lg flex items-center justify-center transition-all text-lg ${
+          showReminder && !open ? "animate-pulse-glow" : ""
+        }`}
         aria-label="Toggle movie assistant"
       >
         {open ? "✕" : "💬"}
