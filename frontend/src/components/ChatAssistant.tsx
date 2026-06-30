@@ -10,6 +10,7 @@ import {
   selectChatQuery,
 } from "../redux/selectors/chatSelectors";
 import { Link } from "react-router-dom";
+import RenderWakeMessage from "./RenderWakeMessage";
 
 const ChatAssistant = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -123,6 +124,7 @@ const ChatAssistant = () => {
               <div className="flex flex-col items-center justify-center gap-3 mt-8">
                 <div className="animate-spin w-6 h-6 border-2 border-[#c9774d] border-t-transparent rounded-full" />
                 <p className="text-[#6b6b6b] text-xs">Thinking...</p>
+                <RenderWakeMessage inline />
               </div>
             )}
 

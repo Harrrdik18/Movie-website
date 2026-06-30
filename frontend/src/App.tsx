@@ -36,6 +36,7 @@ import Profile from "./pages/Profile";
 import ScrollToTop from "./components/ScrollToTop";
 import ChatAssistant from "./components/ChatAssistant";
 import SearchOverlay from "./components/SearchOverlay";
+import RenderWakeMessage from "./components/RenderWakeMessage";
 
 function App() {
   const dispatch = useDispatch<AppDispatch>();
@@ -211,6 +212,7 @@ function App() {
             onQueryChange={handleSearchQueryChange}
           />
         )}
+        <RenderWakeMessage />
       </div>
     </BrowserRouter>
   );
